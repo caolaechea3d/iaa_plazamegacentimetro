@@ -8,34 +8,27 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-//@ -> significa anotacion
-//Lombok----------------------------------------------------------------
-@NoArgsConstructor //metodo constructor vacio
-@AllArgsConstructor //metodo constructor con parametros
-@Data // metodos GET,SET,EQUALS, HASHCODE, TOSTRING
-@Builder //clase builder
-//----------------------------------------------------------------------
-//Jakarta----------------------------------------------------------------
-@Entity(name = "DistritoEntity") //define la entidad
-@Table(name = "distrito") //define la tabla con la que se trabaja
-//-----------------------------------------------------------------------
-//debemos de serializar la clase
+@NoArgsConstructor
+@AllArgsConstructor
+@Data
+@Builder
+@Entity(name = "DistritoEntity")
+@Table(name = "distrito")
 public class DistritoEntity implements Serializable {
-	
-	//codigo de serializacion
+
 	private static final long serialVersionUID = 1L;
-	
-	//atributos de la clase
-	@Id //define la clave primaria
-	@Column(name = "coddis") //define la columna con la que se relaciona
-	@GeneratedValue(strategy = GenerationType.IDENTITY) //es para el auto_increment
+
+	@Id
+	@Column(name = "coddis")
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long codigo;
-	@Column(name = "nomdis",length = 50, nullable = false)
+	@Column(name = "nomdis", length = 50, nullable = false)
 	private String nombre;
 	@Column(name = "estdis", nullable = false)
 	private Boolean estado;
