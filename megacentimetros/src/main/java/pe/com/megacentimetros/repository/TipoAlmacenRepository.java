@@ -1,0 +1,13 @@
+package pe.com.megacentimetros.repository;
+
+import java.util.List;
+
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+
+import pe.com.megacentimetros.entity.TipoAlmacenEntity;
+
+public interface TipoAlmacenRepository extends JpaRepository<TipoAlmacenEntity, Long> {
+	@Query("select t from TipoAlmacenEntity t where t.estado=true")
+	List<TipoAlmacenEntity> findAllCustom();
+}
