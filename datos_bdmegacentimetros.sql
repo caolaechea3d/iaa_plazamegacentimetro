@@ -1,483 +1,445 @@
 -- --------------------------------------------
--- DATOS DE PRUEBA - BDMEGACENTIMETROS
--- Ejecutar DESPUÉS de bdmegacentimetros.sql (sobre la base recién creada).
--- 5 registros por tabla. En las tablas con estado BIT, el registro 5 está
--- deshabilitado (estado = 0) para probar /custom y PATCH (enable).
+-- DATOS DE PRUEBA: Plaza Megacentímetros S.A.C.
+-- Ejecutar DESPUÉS de bdmegacentimetros_auditoria.sql
 -- --------------------------------------------
-
 USE bdmegacentimetros;
-
--- --------------------------------------------
--- CATÁLOGOS
--- --------------------------------------------
-
-INSERT INTO distrito (coddis, nomdis, estdis) VALUES
-(1, 'Miraflores', 1),
-(2, 'San Isidro', 1),
-(3, 'Santiago de Surco', 1),
-(4, 'Los Olivos', 1),
-(5, 'Ate', 0);
-
-INSERT INTO sexo (codsex, nomsex, estsex) VALUES
-(1, 'Masculino', 1),
-(2, 'Femenino', 1),
-(3, 'Otro', 1),
-(4, 'Prefiero no decir', 1),
-(5, 'No especificado', 0);
-
-INSERT INTO tipodocumento (codtipd, nomtipd, esttipd) VALUES
-(1, 'DNI', 1),
-(2, 'RUC', 1),
-(3, 'Carnet de Extranjería', 1),
-(4, 'Pasaporte', 1),
-(5, 'Partida de Nacimiento', 0);
-
-INSERT INTO tipocliente (codtcli, nomtcli, esttcli) VALUES
-(1, 'Minorista', 1),
-(2, 'Mayorista', 1),
-(3, 'Corporativo', 1),
-(4, 'Distribuidor', 1),
-(5, 'Ocasional', 0);
-
-INSERT INTO tipocomprobante (codtcom, nomtcom, esttcom) VALUES
-(1, 'Boleta de Venta', 1),
-(2, 'Factura', 1),
-(3, 'Nota de Crédito', 1),
-(4, 'Nota de Débito', 1),
-(5, 'Ticket', 0);
-
-INSERT INTO categoriaproducto (codcat, nomcat, estcat) VALUES
-(1, 'Abarrotes', 1),
-(2, 'Bebidas', 1),
-(3, 'Limpieza', 1),
-(4, 'Cuidado Personal', 1),
-(5, 'Snacks', 0);
-
-INSERT INTO marcaproducto (codmar, nommar, estmar) VALUES
-(1, 'Gloria', 1),
-(2, 'Costeño', 1),
-(3, 'Bolívar', 1),
-(4, 'San Luis', 1),
-(5, 'Sapolio', 0);
-
-INSERT INTO tipoempaque (codtemp, nomtemp, esttemp) VALUES
-(1, 'Lata', 1),
-(2, 'Bolsa', 1),
-(3, 'Botella', 1),
-(4, 'Caja', 1),
-(5, 'Pote', 0);
-
-INSERT INTO unidadmedida (codumed, nomumed, abrumed, estumed) VALUES
-(1, 'Unidad', 'UND', 1),
-(2, 'Kilogramo', 'KG', 1),
-(3, 'Litro', 'LT', 1),
-(4, 'Paquete', 'PQT', 1),
-(5, 'Docena', 'DOC', 0);
-
-INSERT INTO tipoalmacen (codtalm, nomtalm, esttalm) VALUES
-(1, 'Central', 1),
-(2, 'Tienda', 1),
-(3, 'Tránsito', 1),
-(4, 'Refrigerado', 1),
-(5, 'Temporal', 0);
-
-INSERT INTO estadooperativo (codeope, nomeope, deseope) VALUES
-(1, 'Operativo', 'Funciona con normalidad'),
-(2, 'En mantenimiento', 'Atención parcial por trabajos de mantenimiento'),
-(3, 'Cerrado temporalmente', 'Sin atención hasta nuevo aviso'),
-(4, 'En remodelación', 'Obras de ampliación o remodelación'),
-(5, 'Cerrado definitivamente', 'Local dado de baja');
-
-INSERT INTO tipoempleado (codtiemp, nomtiemp, esttiemp) VALUES
-(1, 'Administrativo', 1),
-(2, 'Operativo', 1),
-(3, 'Gerencial', 1),
-(4, 'Practicante', 1),
-(5, 'Tercerizado', 0);
-
-INSERT INTO cargo (codcarg, nomcarg, estcarg, codtiemp) VALUES
-(1, 'Gerente de Tienda', 1, 3),
-(2, 'Asistente Administrativo', 1, 1),
-(3, 'Vendedor', 1, 2),
-(4, 'Almacenero', 1, 2),
-(5, 'Cajero', 0, 2);
-
-INSERT INTO estadoasistencia (codeasis, nomeasis, deseasis) VALUES
-(1, 'Puntual', 'Ingresó dentro del horario'),
-(2, 'Tardanza', 'Ingresó después de la hora de entrada'),
-(3, 'Falta', 'No se presentó a trabajar'),
-(4, 'Falta Justificada', 'Inasistencia con sustento presentado'),
-(5, 'Permiso', 'Salida autorizada antes del fin de turno');
-
-INSERT INTO estadoevaluacion (codeeva, nomeeva, esteeva) VALUES
-(1, 'Pendiente', 1),
-(2, 'Aprobado', 1),
-(3, 'Rechazado', 1),
-(4, 'En revisión', 1),
-(5, 'Suspendido', 0);
-
-INSERT INTO tipotransporte (codttra, nomttra, estttra) VALUES
-(1, 'Motocicleta', 1),
-(2, 'Furgoneta', 1),
-(3, 'Camión', 1),
-(4, 'Camioneta', 1),
-(5, 'Courier externo', 0);
-
-INSERT INTO estadotransporte (codetra, nometra, estetra) VALUES
-(1, 'Disponible', 1),
-(2, 'En ruta', 1),
-(3, 'En mantenimiento', 1),
-(4, 'Reservado', 1),
-(5, 'Fuera de servicio', 0);
-
-INSERT INTO tipoincidencia (codtinc, nomtinc, esttinc) VALUES
-(1, 'Retraso en la entrega', 1),
-(2, 'Producto dañado', 1),
-(3, 'Dirección errada', 1),
-(4, 'Cliente ausente', 1),
-(5, 'Pedido incompleto', 0);
-
-INSERT INTO metodopago (codmpag, nommpag, estmpag) VALUES
-(1, 'Efectivo', 1),
-(2, 'Tarjeta de crédito/débito', 1),
-(3, 'Yape/Plin', 1),
-(4, 'Transferencia bancaria', 1),
-(5, 'Cheque', 0);
-
-INSERT INTO estadopago (codepag, nomepag, estepag) VALUES
-(1, 'Pendiente', 1),
-(2, 'En proceso', 1),
-(3, 'Realizado', 1),
-(4, 'Anulado', 1),
-(5, 'Rechazado', 0);
-
-INSERT INTO tipomovimiento (codtmov, nomtmov, sigtmov, esttmov) VALUES
-(1, 'Entrada por compra', 1, 1),
-(2, 'Salida por venta', -1, 1),
-(3, 'Entrada por traslado', 1, 1),
-(4, 'Salida por traslado', -1, 1),
-(5, 'Ajuste por merma', -1, 0);
-
-INSERT INTO rol (codrol, nomrol, estrol) VALUES
-(1, 'Administrador', 1),
-(2, 'Vendedor', 1),
-(3, 'Almacenero', 1),
-(4, 'Contador', 1),
-(5, 'Auditor', 0);
-
-INSERT INTO modulo (codmod, nommod, rutmod, estmod) VALUES
-(1, 'Ventas', '/ventas', 1),
-(2, 'Compras', '/compras', 1),
-(3, 'Inventario', '/inventario', 1),
-(4, 'Despacho', '/despacho', 1),
-(5, 'Marketing', '/marketing', 0);
-
-INSERT INTO capacitacion (codcap, nomcap, descap, inicap, fincap, horcap, estcap) VALUES
-(1, 'Atención al cliente', 'Técnicas de servicio y manejo de reclamos', '2026-03-02', '2026-03-06', 20, 1),
-(2, 'Seguridad y salud en el trabajo', 'Prevención de riesgos y uso de EPP', '2026-04-06', '2026-04-10', 16, 1),
-(3, 'Manejo de inventarios', 'Kardex, rotación de stock y conteo cíclico', '2026-05-04', '2026-05-15', 24, 1),
-(4, 'Manejo defensivo', 'Conducción segura para personal de reparto', '2026-10-19', '2026-10-23', 12, 1),
-(5, 'Excel avanzado', 'Tablas dinámicas y reportes', '2026-07-06', '2026-07-17', 30, 0);
-
-INSERT INTO campana (codcam, nomcam, descam, inicam, fincam, estcam) VALUES
-(1, 'Campaña Escolar 2026', 'Descuentos para la temporada escolar', '2026-02-15', '2026-03-31', 1),
-(2, 'Día de la Madre', 'Ofertas especiales por el Día de la Madre', '2026-05-01', '2026-05-10', 1),
-(3, 'Fiestas Patrias', 'Promociones por Fiestas Patrias', '2026-07-15', '2026-07-31', 1),
-(4, 'Cyber Megacentímetros', 'Descuentos de octubre en abarrotes', '2026-10-01', '2026-10-31', 1),
-(5, 'Navidad 2025', 'Campaña navideña del año anterior', '2025-12-01', '2025-12-31', 0);
-
-INSERT INTO recompensa (codrec, nomrec, desrec, punrec, estrec) VALUES
-(1, 'Vale de S/ 20', 'Vale de consumo en cualquier sucursal', 500, 1),
-(2, 'Vale de S/ 50', 'Vale de consumo en cualquier sucursal', 1000, 1),
-(3, 'Envío gratis', 'Despacho sin costo en el siguiente pedido', 300, 1),
-(4, 'Canasta de abarrotes', 'Canasta con productos de primera necesidad', 1500, 1),
-(5, 'Tomatodo Megacentímetros', 'Artículo promocional de la marca', 200, 0);
-
-INSERT INTO nivelfidelizacion (codniv, nomniv, minniv, desniv, estniv) VALUES
-(1, 'Bronce', 0, 'Acumula 1 punto por cada sol', 1),
-(2, 'Plata', 1000, 'Acumula puntos y recibe ofertas exclusivas', 1),
-(3, 'Oro', 3000, 'Envío gratis en compras mayores a S/ 100', 1),
-(4, 'Platino', 6000, 'Envío gratis y 5% de descuento permanente', 1),
-(5, 'Diamante', 10000, 'Nivel en evaluación', 0);
-
--- --------------------------------------------
--- ALMACENES Y SUCURSALES
--- --------------------------------------------
-
-INSERT INTO sucursal (codsuc, nomsuc, dirsuc, telsuc, estsuc, coddis, codeope) VALUES
-(1, 'Megacentímetros Miraflores', 'Av. Larco 345', '01-4451234', 1, 1, 1),
-(2, 'Megacentímetros San Isidro', 'Av. Javier Prado Este 1120', '01-4229876', 1, 2, 1),
-(3, 'Megacentímetros Surco', 'Av. Primavera 890', '01-2715566', 1, 3, 1),
-(4, 'Megacentímetros Los Olivos', 'Av. Carlos Izaguirre 456', '01-5283344', 1, 4, 2),
-(5, 'Megacentímetros Ate', 'Av. Nicolás Ayllón 2780', '01-3567788', 0, 5, 3);
-
-INSERT INTO almacen (codalm, nomalm, diralm, capalm, coddis, codtalm, codsuc, codeope) VALUES
-(1, 'Almacén Central Los Olivos', 'Av. Naranjal 1500', 5000, 4, 1, 4, 1),
-(2, 'Almacén Tienda Miraflores', 'Av. Larco 345 - Sótano', 800, 1, 2, 1, 1),
-(3, 'Almacén Tienda San Isidro', 'Av. Javier Prado Este 1120 - Sótano', 700, 2, 2, 2, 1),
-(4, 'Almacén Refrigerado Surco', 'Av. Primavera 900', 1200, 3, 4, 3, 1),
-(5, 'Almacén Tránsito Ate', 'Av. Nicolás Ayllón 2790', 600, 5, 3, 5, 3);
-
--- --------------------------------------------
--- PERSONAS
--- --------------------------------------------
-
-INSERT INTO empleado (codemp, nomemp, apepemp, apememp, docemp, feccemp, nacemp, diremp, telemp, celemp, coremp, estemp, coddis, codsex, codtipd, codcarg, codsuc) VALUES
-(1, 'Carlos', 'Ramírez', 'Torres', '45879632', '2020-03-01', 'Peruana', 'Av. Benavides 1450', '01-2456789', '987654321', 'carlos.ramirez@megacentimetros.pe', 1, 1, 1, 1, 1, 1),
-(2, 'María', 'Gonzales', 'Quispe', '46123987', '2021-06-15', 'Peruana', 'Jr. Las Begonias 230', '01-4412233', '986543210', 'maria.gonzales@megacentimetros.pe', 1, 2, 2, 1, 2, 2),
-(3, 'Luis', 'Fernández', 'Rojas', '47896541', '2022-01-10', 'Peruana', 'Calle Los Pinos 145', NULL, '985432109', 'luis.fernandez@megacentimetros.pe', 1, 1, 1, 1, 3, 1),
-(4, 'José', 'Huamán', 'Castillo', '48523697', '2022-08-20', 'Peruana', 'Av. Universitaria 5600', NULL, '984321098', 'jose.huaman@megacentimetros.pe', 1, 4, 1, 1, 4, 4),
-(5, 'Ana', 'Valdivia', 'Pérez', '001234567', '2023-02-01', 'Venezolana', 'Av. Separadora Industrial 890', NULL, '983210987', 'ana.valdivia@megacentimetros.pe', 0, 5, 2, 3, 5, 5);
-
-INSERT INTO cliente (codcli, nomcli, apepcli, apemcli, razcli, doccli, naccli, dircli, telcli, celcli, corcli, estcli, coddis, codsex, codtipd, codtcli) VALUES
-(1, 'Rosa', 'Medina', 'Salas', NULL, '70123456', 'Peruana', 'Av. Pardo 560', NULL, '991234567', 'rosa.medina@ejemplo.com', 1, 1, 2, 1, 1),
-(2, 'Jorge', 'Paredes', 'Linares', NULL, '71234567', 'Peruana', 'Jr. Cahuide 320', '01-4567890', '992345678', 'jorge.paredes@ejemplo.com', 1, 3, 1, 1, 1),
-(3, NULL, NULL, NULL, 'Bodega El Progreso E.I.R.L.', '20512345678', NULL, 'Av. Antúnez de Mayolo 1020', '01-5321234', '993456789', 'ventas@bodegaelprogreso.pe', 1, 4, NULL, 2, 2),
-(4, NULL, NULL, NULL, 'Distribuidora Andina S.A.C.', '20601234567', NULL, 'Av. República de Panamá 3450', '01-4223344', '994567890', 'compras@distribuidoraandina.pe', 1, 2, NULL, 2, 4),
-(5, 'Pedro', 'Castro', 'Ruiz', NULL, '72345678', 'Peruana', 'Av. Los Próceres 780', NULL, '995678901', 'pedro.castro@ejemplo.com', 0, 3, 1, 1, 1);
-
-INSERT INTO proveedor (codprov, nomprov, apepprov, apemprov, razprov, rucprov, corprov, telprov, celprov, estprov, dirprov, coddis, codeeva, feceva) VALUES
-(1, NULL, NULL, NULL, 'Distribuidora Lima Norte S.A.C.', '20100011122', 'ventas@limanorte.pe', '01-5301122', '961122334', 1, 'Av. Túpac Amaru 4500', 4, 2, '2026-01-15'),
-(2, NULL, NULL, NULL, 'Comercial Andes Import S.A.', '20200022233', 'pedidos@andesimport.pe', '01-4405566', '962233445', 1, 'Av. Canaval y Moreyra 480', 2, 2, '2026-02-10'),
-(3, NULL, NULL, NULL, 'Agroindustrias Costa Verde S.A.C.', '20300033344', 'comercial@costaverde.pe', '01-2719988', '963344556', 1, 'Av. Caminos del Inca 1200', 3, 2, '2026-03-05'),
-(4, 'Miguel', 'Torres', 'Vega', NULL, '10456789012', 'miguel.torres@ejemplo.com', NULL, '964455667', 1, 'Jr. Huáscar 215', 1, 1, NULL),
-(5, NULL, NULL, NULL, 'Química Industrial Pacífico S.R.L.', '20400044455', 'ventas@quimicapacifico.pe', '01-3264477', '965566778', 0, 'Av. Separadora Industrial 1500', 5, 3, '2026-04-20');
-
--- --------------------------------------------
--- PRODUCTOS E INVENTARIO
--- --------------------------------------------
-
-INSERT INTO producto (codpro, skupro, nompro, despro, prepro, cospro, estpro, codcat, codmar, codtemp, codumed) VALUES
-(1, 'GLO-LEC-400', 'Leche evaporada Gloria 400 g', 'Leche evaporada entera en lata', 4.50, 3.60, 1, 1, 1, 1, 1),
-(2, 'COS-ARR-001', 'Arroz extra Costeño', 'Arroz extra a granel, venta por kilo', 4.20, 3.30, 1, 1, 2, 2, 2),
-(3, 'BOL-DET-2600', 'Detergente Bolívar 2.6 kg', 'Detergente en polvo aroma limón', 32.90, 26.50, 1, 3, 3, 2, 1),
-(4, 'SLU-AGU-2500', 'Agua San Luis sin gas 2.5 L', 'Agua de mesa sin gas', 3.80, 2.70, 1, 2, 4, 3, 1),
-(5, 'SAP-LAV-500', 'Lavavajilla Sapolio limón 500 g', 'Lavavajilla en crema', 5.90, 4.40, 0, 3, 5, 5, 1);
-
-INSERT INTO stockalmacen (codpro, codalm, cansalm, minsalm) VALUES
-(1, 1, 1090, 200),
-(2, 1, 2950, 500),
-(3, 1, 360, 80),
-(1, 2, 30, 50),
-(4, 4, 594, 100);
-
-INSERT INTO trasladoalmacen (codtrasl, fectrasl, esttrasl, codalmori, codalmdes, codemp) VALUES
-(1, '2026-09-01 08:00:00', 'RECIBIDO', 1, 2, 4),
-(2, '2026-09-10 09:30:00', 'RECIBIDO', 1, 3, 4),
-(3, '2026-10-05 07:45:00', 'EN TRANSITO', 1, 4, 4),
-(4, '2026-10-11 10:00:00', 'PENDIENTE', 1, 2, 4),
-(5, '2026-08-20 08:15:00', 'ANULADO', 2, 3, 4);
-
-INSERT INTO detalletraslado (coddtrasl, candtrasl, codpro, codtrasl) VALUES
-(1, 100, 1, 1),
-(2, 50, 3, 2),
-(3, 120, 4, 3),
-(4, 80, 2, 4),
-(5, 30, 1, 5);
-
-INSERT INTO movimientoinventario (codminv, fecminv, canminv, refminv, codpro, codalm, codtmov, codemp) VALUES
-(1, '2026-08-25 10:00:00', 1200, 'GIN-001', 1, 1, 1, 4),
-(2, '2026-09-01 08:00:00', 100, 'TRA-001', 1, 1, 4, 4),
-(3, '2026-09-01 14:00:00', 100, 'TRA-001', 1, 2, 3, 4),
-(4, '2026-10-02 11:20:00', 10, 'PED-001', 1, 2, 2, 3),
-(5, '2026-08-28 09:00:00', 3000, 'GIN-002', 2, 1, 1, 4);
-
--- --------------------------------------------
--- MARKETING
--- --------------------------------------------
-
-INSERT INTO campanasegmento (codcam, codtcli) VALUES
-(1, 1),
-(2, 1),
-(3, 2),
-(4, 1),
-(4, 2);
-
-INSERT INTO promocion (codprom, nomprom, tipprom, valprom, iniprom, finprom, estprom, codcam, codpro, codcat) VALUES
-(1, 'Leche Gloria 10% de descuento', 'PORCENTAJE', 10.00, '2026-02-15', '2026-03-31', 1, 1, 1, NULL),
-(2, '15% en productos de limpieza', 'PORCENTAJE', 15.00, '2026-05-01', '2026-05-10', 1, 2, NULL, 3),
-(3, 'S/ 5 menos en detergente', 'MONTO', 5.00, '2026-07-15', '2026-07-31', 1, 3, 3, NULL),
-(4, 'Cyber: 20% en abarrotes', 'PORCENTAJE', 20.00, '2026-10-01', '2026-10-31', 1, 4, NULL, 1),
-(5, 'Navidad: S/ 2 menos en agua', 'MONTO', 2.00, '2025-12-01', '2025-12-31', 0, 5, 4, NULL);
-
--- --------------------------------------------
--- VENTAS
--- --------------------------------------------
-
-INSERT INTO pedido (codped, fecped, totped, estped, codcli, codemp, codsuc) VALUES
-(1, '2026-10-02 11:15:00', 36.00, 'DESPACHADO', 1, 3, 1),
-(2, '2026-10-03 10:00:00', 168.00, 'DESPACHADO', 3, 3, 1),
-(3, '2026-10-06 16:30:00', 658.00, 'PAGADO', 4, 1, 1),
-(4, '2026-10-09 12:00:00', 22.80, 'CONFIRMADO', 2, 3, 1),
-(5, '2026-10-10 18:20:00', 18.00, 'ANULADO', 5, 3, 1);
-
-INSERT INTO detallepedido (coddped, candped, predped, desdped, subdped, codped, codpro, codalm, codprom) VALUES
-(1, 10, 4.50, 9.00, 36.00, 1, 1, 2, 4),
-(2, 50, 4.20, 42.00, 168.00, 2, 2, 1, 4),
-(3, 20, 32.90, 0.00, 658.00, 3, 3, 1, NULL),
-(4, 6, 3.80, 0.00, 22.80, 4, 4, 4, NULL),
-(5, 4, 4.50, 0.00, 18.00, 5, 1, 2, NULL);
-
-INSERT INTO facturacion (codfac, serfac, numfac, fecfac, subfac, igvfac, totfac, estfac, codped, codtcom) VALUES
-(1, 'B001', 1, '2026-10-02 11:20:00', 30.51, 5.49, 36.00, 'PAGADA', 1, 1),
-(2, 'F001', 1, '2026-10-03 10:05:00', 142.37, 25.63, 168.00, 'PAGADA', 2, 2),
-(3, 'F001', 2, '2026-10-06 16:40:00', 557.63, 100.37, 658.00, 'PAGADA', 3, 2),
-(4, 'B001', 2, '2026-10-09 12:10:00', 19.32, 3.48, 22.80, 'EMITIDA', 4, 1),
-(5, 'B001', 3, '2026-10-10 18:30:00', 15.25, 2.75, 18.00, 'ANULADA', 5, 1);
-
--- --------------------------------------------
--- COMPRAS
--- --------------------------------------------
-
-INSERT INTO ordencompra (codocom, fecocom, estocom, fecentocom, conocom, totocom, codprov, codalm, codemp) VALUES
-(1, '2026-08-20 09:00:00', 'RECIBIDA', '2026-08-25', 'Entrega en almacén central, pago a 30 días', 4320.00, 1, 1, 2),
-(2, '2026-08-22 10:00:00', 'RECIBIDA', '2026-08-28', 'Entrega en almacén central, pago a 15 días', 9900.00, 3, 1, 2),
-(3, '2026-09-15 11:00:00', 'RECIBIDA', '2026-09-22', 'Entrega en dos partes, pago a 30 días', 10600.00, 2, 1, 2),
-(4, '2026-10-05 08:30:00', 'RECIBIDA PARCIAL', '2026-10-15', 'Entrega en almacén refrigerado, pago a 30 días', 1620.00, 1, 4, 2),
-(5, '2026-07-10 09:00:00', 'ANULADA', '2026-07-20', 'Anulada: proveedor sin evaluación aprobada', 880.00, 4, 1, 2);
-
-INSERT INTO detalleordencompra (coddocom, candocom, cosdocom, subdocom, codocom, codpro) VALUES
-(1, 1200, 3.60, 4320.00, 1, 1),
-(2, 3000, 3.30, 9900.00, 2, 2),
-(3, 400, 26.50, 10600.00, 3, 3),
-(4, 600, 2.70, 1620.00, 4, 4),
-(5, 200, 4.40, 880.00, 5, 5);
-
-INSERT INTO guiaingreso (codgin, fecgin, estgin, codocom, codalm, codemp) VALUES
-(1, '2026-08-25 10:00:00', 'CONFORME', 1, 1, 4),
-(2, '2026-08-28 09:00:00', 'CONFORME', 2, 1, 4),
-(3, '2026-09-22 14:00:00', 'OBSERVADA', 3, 1, 4),
-(4, '2026-09-29 15:30:00', 'CONFORME', 3, 1, 4),
-(5, '2026-10-12 09:00:00', 'REGISTRADA', 4, 4, 4);
-
-INSERT INTO detalleguiaingreso (coddgin, candgin, codpro, codgin) VALUES
-(1, 1200, 1, 1),
-(2, 3000, 2, 2),
-(3, 300, 3, 3),
-(4, 100, 3, 4),
-(5, 300, 4, 5);
-
-INSERT INTO facturaproveedor (codfprov, numfprov, fecfprov, venfprov, totfprov, estfprov, codocom, codprov) VALUES
-(1, 'F001-00012345', '2026-08-25', '2026-09-24', 4320.00, 'PAGADA', 1, 1),
-(2, 'E001-00000987', '2026-08-28', '2026-09-12', 9900.00, 'PAGADA', 2, 3),
-(3, 'F002-00004521', '2026-09-22', '2026-10-22', 7950.00, 'PAGADA PARCIAL', 3, 2),
-(4, 'F002-00004610', '2026-09-29', '2026-10-29', 2650.00, 'PENDIENTE', 3, 2),
-(5, 'F001-00012399', '2026-10-12', '2026-11-11', 810.00, 'PENDIENTE', 4, 1);
-
--- --------------------------------------------
--- DESPACHO
--- --------------------------------------------
-
-INSERT INTO transporte (codtra, platra, captra, esttra, codttra, codetra) VALUES
-(1, 'A1B-234', 1500.00, 1, 2, 1),
-(2, 'C3D-456', 8000.00, 1, 3, 2),
-(3, 'E5F-678', 1200.00, 1, 4, 1),
-(4, '1234-AB', 150.00, 1, 1, 3),
-(5, 'G7H-890', 5000.00, 0, 3, 3);
-
-INSERT INTO despacho (coddes, numdes, fecdes, dirdes, estdes, codfac, codemp, codtra, coddis) VALUES
-(1, 'GR-T001-000001', '2026-10-02 15:00:00', 'Av. Pardo 560', 'ENTREGADO', 1, 4, 1, 1),
-(2, 'GR-T001-000002', '2026-10-03 14:00:00', 'Av. Antúnez de Mayolo 1020', 'ENTREGADO', 2, 4, 1, 4),
-(3, 'GR-T001-000003', '2026-10-07 09:00:00', 'Av. República de Panamá 3450', 'INCIDENCIA', 3, 4, 2, 2),
-(4, 'GR-T001-000004', '2026-10-08 10:00:00', 'Av. República de Panamá 3450', 'EN RUTA', 3, 4, 2, 2),
-(5, 'GR-T001-000005', '2026-10-10 19:00:00', 'Av. Los Próceres 780', 'ANULADO', 5, 4, 3, 3);
-
-INSERT INTO detalledespacho (coddetdes, candetdes, codpro, codalm, coddes) VALUES
-(1, 10, 1, 2, 1),
-(2, 50, 2, 1, 2),
-(3, 20, 3, 1, 3),
-(4, 20, 3, 1, 4),
-(5, 4, 1, 2, 5);
-
-INSERT INTO incidenciadespacho (codinc, fecinc, desinc, accinc, estinc, coddes, codtinc) VALUES
-(1, '2026-10-07 12:30:00', 'El cliente no se encontraba en el local', 'Se reprogramó la entrega para el día siguiente', 'RESUELTA', 3, 4),
-(2, '2026-10-07 12:35:00', 'Dos bolsas de detergente llegaron rotas', 'Se repusieron las bolsas en el segundo despacho', 'RESUELTA', 3, 2),
-(3, '2026-10-08 11:00:00', 'Tráfico intenso en la Vía Expresa', 'Se notificó al cliente el nuevo horario', 'EN PROCESO', 4, 1),
-(4, '2026-10-03 15:10:00', 'Número de calle mal registrado', 'Se corrigió la dirección con el cliente', 'RESUELTA', 2, 3),
-(5, '2026-10-10 19:10:00', 'La unidad asignada no salió por falla mecánica', NULL, 'ABIERTA', 5, 1);
-
--- --------------------------------------------
--- PERSONAL
--- --------------------------------------------
-
-INSERT INTO asistencia (codasi, fecasi, entasi, salasi, codeasis, codemp) VALUES
-(1, '2026-10-09', '08:00:00', '17:00:00', 1, 1),
-(2, '2026-10-09', '08:15:00', '17:05:00', 2, 3),
-(3, '2026-10-09', NULL, NULL, 3, 4),
-(4, '2026-10-09', '07:55:00', '16:30:00', 1, 2),
-(5, '2026-10-10', '08:00:00', '13:00:00', 5, 1);
-
-INSERT INTO empleadocapacitacion (codemp, codcap, notecap, estecap, feccomp) VALUES
-(3, 1, 17.50, 'APROBADO', '2026-03-06'),
-(4, 2, 15.00, 'APROBADO', '2026-04-10'),
-(4, 3, 10.00, 'DESAPROBADO', '2026-05-15'),
-(2, 3, NULL, 'RETIRADO', NULL),
-(4, 4, NULL, 'INSCRITO', NULL);
-
--- --------------------------------------------
--- PAGOS
--- --------------------------------------------
-
-INSERT INTO pagocliente (codpcli, fecpcli, monpcli, numpcli, codfac, codmpag, codepag) VALUES
-(1, '2026-10-02 11:20:00', 36.00, NULL, 1, 1, 3),
-(2, '2026-10-03 10:10:00', 168.00, 'OP-120045', 2, 4, 3),
-(3, '2026-10-06 16:45:00', 658.00, 'TRX-889900', 3, 2, 3),
-(4, '2026-10-09 12:15:00', 22.80, 'YP-334455', 4, 3, 1),
-(5, '2026-10-10 18:35:00', 18.00, 'TRX-889955', 5, 2, 4);
-
-INSERT INTO pagoproveedor (codpprov, fecpprov, monpprov, numpprov, codfprov, codmpag, codepag) VALUES
-(1, '2026-09-20 10:00:00', 4320.00, 'OP-778899', 1, 4, 3),
-(2, '2026-09-10 11:00:00', 9900.00, 'OP-778950', 2, 4, 3),
-(3, '2026-10-05 09:30:00', 4000.00, 'OP-779120', 3, 4, 3),
-(4, '2026-10-12 09:00:00', 3950.00, 'OP-779300', 3, 4, 2),
-(5, '2026-10-12 10:00:00', 2650.00, 'OP-779315', 4, 4, 1);
-
--- --------------------------------------------
--- SEGURIDAD Y AUDITORÍA
--- --------------------------------------------
-
-INSERT INTO usuario (codusu, nomusu, passusu, estusu, intusu, ultusu, codemp, codrol) VALUES
-(1, 'cramirez', SHA2('Mega2026*', 256), 'ACTIVO', 0, '2026-10-12 08:05:00', 1, 1),
-(2, 'mgonzales', SHA2('Mega2026*', 256), 'ACTIVO', 0, '2026-10-11 17:40:00', 2, 4),
-(3, 'lfernandez', SHA2('Mega2026*', 256), 'ACTIVO', 1, '2026-10-12 08:20:00', 3, 2),
-(4, 'jhuaman', SHA2('Mega2026*', 256), 'BLOQUEADO', 3, '2026-10-08 18:00:00', 4, 3),
-(5, 'avaldivia', SHA2('Mega2026*', 256), 'INACTIVO', 0, NULL, 5, 2);
-
-INSERT INTO rolpermiso (codrol, codmod, lecper, escper, eliper) VALUES
-(1, 1, 1, 1, 1),
-(1, 2, 1, 1, 1),
-(2, 1, 1, 1, 0),
-(3, 3, 1, 1, 0),
-(4, 2, 1, 0, 0);
-
-INSERT INTO auditorialog (codlog, feclog, acclog, tablog, reglog, iplog, codusu, codmod) VALUES
-(1, '2026-10-12 08:05:00', 'LOGIN', NULL, NULL, '192.168.1.10', 1, NULL),
-(2, '2026-10-02 11:15:00', 'INSERT', 'pedido', '1', '192.168.1.25', 3, 1),
-(3, '2026-10-03 10:05:00', 'INSERT', 'facturacion', '2', '192.168.1.25', 3, 1),
-(4, '2026-08-20 09:00:00', 'INSERT', 'ordencompra', '1', '192.168.1.15', 2, 2),
-(5, '2026-10-10 18:40:00', 'UPDATE', 'pedido', '5', '192.168.1.10', 1, 1);
-
--- --------------------------------------------
--- FIDELIZACIÓN
--- --------------------------------------------
-
-INSERT INTO cuentapuntos (codcpun, salcpun, feccpun, codcli, codniv) VALUES
-(1, 350, '2026-01-10 10:00:00', 1, 1),
-(2, 1250, '2025-06-15 11:00:00', 2, 2),
-(3, 3400, '2025-03-01 09:00:00', 3, 3),
-(4, 6200, '2024-11-20 16:00:00', 4, 4),
-(5, 0, '2026-02-05 12:00:00', 5, 1);
-
-INSERT INTO movimientopuntos (codmpun, fecmpun, canmpun, tipmpun, codcpun, codfac) VALUES
-(1, '2026-10-02 11:20:00', 36, 'ACUMULACION', 1, 1),
-(2, '2026-10-03 10:10:00', 168, 'ACUMULACION', 3, 2),
-(3, '2026-10-06 16:45:00', 658, 'ACUMULACION', 4, 3),
-(4, '2026-09-15 12:00:00', 500, 'CANJE', 2, NULL),
-(5, '2026-01-01 00:00:00', 100, 'VENCIMIENTO', 3, NULL);
-
-INSERT INTO canjerecompensa (codcan, feccan, puncan, codcpun, codrec) VALUES
-(1, '2026-09-15 12:00:00', 500, 2, 1),
-(2, '2026-08-10 15:00:00', 1000, 3, 2),
-(3, '2026-07-22 10:30:00', 300, 4, 3),
-(4, '2026-09-30 17:00:00', 1500, 4, 4),
-(5, '2026-05-12 11:00:00', 300, 1, 3);
+SET NAMES utf8mb4;
+
+-- ================= CATÁLOGOS =================
+INSERT INTO distrito(coddis, nomdis, desdis) VALUES
+ (1,'Lima','Cercado de Lima'),
+ (2,'Miraflores','Distrito comercial y turístico'),
+ (3,'San Isidro','Distrito financiero'),
+ (4,'Santiago de Surco','Zona residencial y comercial'),
+ (5,'La Molina','Zona residencial'),
+ (6,'San Borja','Zona residencial y comercial'),
+ (7,'Callao','Provincia Constitucional del Callao'),
+ (8,'Ate','Zona industrial y de almacenes');
+
+INSERT INTO sexo(codsex, nomsex, dessex) VALUES
+ (1,'Femenino','Persona de sexo femenino'),
+ (2,'Masculino','Persona de sexo masculino');
+
+INSERT INTO tipodocumento(codtipd, nomtipd, destipd) VALUES
+ (1,'DNI','Documento Nacional de Identidad (8 dígitos)'),
+ (2,'RUC','Registro Único de Contribuyentes (11 dígitos)'),
+ (3,'Carnet de Extranjería','Documento para residentes extranjeros'),
+ (4,'Pasaporte','Documento de viaje internacional');
+
+INSERT INTO tipocliente(codtcli, nomtcli, destcli) VALUES
+ (1,'Minorista','Compra por unidad para consumo propio'),
+ (2,'Mayorista','Compra por volumen para reventa'),
+ (3,'Corporativo','Empresa con contrato o convenio de compras');
+
+INSERT INTO tipocomprobante(codtcom, nomtcom, destcom) VALUES
+ (1,'Factura','Comprobante con RUC del cliente'),
+ (2,'Boleta','Comprobante para consumidor final');
+
+INSERT INTO categoriaproducto(codcat, nomcat, descat) VALUES
+ (1,'Abarrotes','Alimentos no perecibles de uso diario'),
+ (2,'Bebidas','Gaseosas, cervezas, aguas y jugos'),
+ (3,'Lácteos y Derivados','Leche, yogurt, mantequilla y quesos'),
+ (4,'Limpieza','Detergentes, lejías y desinfectantes'),
+ (5,'Cuidado Personal','Higiene y cuidado personal');
+
+INSERT INTO marcaproducto(codmar, nommar, desmar) VALUES
+ (1,'Costeño','Arroz y menestras'),
+ (2,'Gloria','Lácteos y derivados'),
+ (3,'Backus','Cervezas'),
+ (4,'Laive','Lácteos y mantequillas'),
+ (5,'Alicorp','Aceites, fideos y harinas'),
+ (6,'Bolívar','Detergentes y limpieza'),
+ (7,'Colgate','Higiene bucal'),
+ (8,'Coca-Cola','Gaseosas');
+
+INSERT INTO tipoempaque(codtemp, nomtemp, destemp) VALUES
+ (1,'Botella','Envase de plástico o vidrio'),
+ (2,'Bolsa','Envase flexible'),
+ (3,'Caja','Envase de cartón'),
+ (4,'Lata','Envase metálico'),
+ (5,'Paquete','Envoltorio sellado');
+
+INSERT INTO unidadmedida(codumed, nomumed, abrumed, desumed) VALUES
+ (1,'Unidad','UND','Venta por unidad'),
+ (2,'Kilogramo','KG','Venta por peso'),
+ (3,'Litro','LT','Venta por volumen'),
+ (4,'Caja','CJ','Venta por caja cerrada'),
+ (5,'Docena','DOC','Venta por 12 unidades');
+
+INSERT INTO tipoalmacen(codtalm, nomtalm, destalm) VALUES
+ (1,'Central','Almacén principal de recepción y distribución'),
+ (2,'Regional','Almacén de apoyo a una sucursal'),
+ (3,'Tránsito','Almacén temporal de mercadería en movimiento');
+
+INSERT INTO estadooperativo(codeope, nomeope, deseope) VALUES
+ (1,'Operativo','Funciona con normalidad'),
+ (2,'Mantenimiento','Atención limitada por mantenimiento'),
+ (3,'Cerrado temporal','Sin atención por un periodo');
+
+INSERT INTO tipoempleado(codtiemp, nomtiemp, destiemp) VALUES
+ (1,'Administrativo','Personal de gestión y oficina'),
+ (2,'Operativo','Personal de tienda, almacén y reparto');
+
+INSERT INTO cargo(codcarg, nomcarg, descarg, codtiemp) VALUES
+ (1,'Gerente General','Dirige la operación de la empresa',1),
+ (2,'Jefe de Almacén','Supervisa inventarios y traslados',1),
+ (3,'Vendedor','Atiende y registra pedidos de clientes',2),
+ (4,'Almacenero','Recibe, ubica y despacha mercadería',2),
+ (5,'Chofer','Transporta pedidos a los clientes',2),
+ (6,'Contador','Controla facturación, pagos y compras',1);
+
+INSERT INTO estadoasistencia(codeasis, nomeasis, deseasis) VALUES
+ (1,'Puntual','Ingresó dentro del horario'),
+ (2,'Tardanza','Ingresó después del horario'),
+ (3,'Falta','No asistió sin justificación'),
+ (4,'Justificado','Ausencia con sustento');
+
+INSERT INTO estadoevaluacion(codeeva, nomeeva, deseeva) VALUES
+ (1,'Pendiente','Evaluación sin realizar'),
+ (2,'Aprobado','Proveedor habilitado para compras'),
+ (3,'Rechazado','Proveedor no habilitado');
+
+INSERT INTO tipotransporte(codttra, nomttra, desttra) VALUES
+ (1,'Furgón','Vehículo cerrado de carga mediana'),
+ (2,'Camión','Vehículo de carga pesada'),
+ (3,'Camioneta','Vehículo de reparto liviano');
+
+INSERT INTO estadotransporte(codetra, nometra, desetra) VALUES
+ (1,'Disponible','Puede asignarse a un despacho'),
+ (2,'En Ruta','Realizando un despacho'),
+ (3,'Mantenimiento','Fuera de servicio temporal');
+
+INSERT INTO tipoincidencia(codtinc, nomtinc, destinc) VALUES
+ (1,'Retraso en entrega','La entrega superó la hora acordada'),
+ (2,'Mercadería dañada','Productos con daño en el traslado'),
+ (3,'Dirección errada','La dirección registrada no es correcta'),
+ (4,'Cliente ausente','Nadie recibió el pedido');
+
+INSERT INTO metodopago(codmpag, nommpag, desmpag) VALUES
+ (1,'Efectivo','Pago en caja'),
+ (2,'Tarjeta','Débito o crédito'),
+ (3,'Transferencia','Transferencia bancaria'),
+ (4,'Yape/Plin','Billetera digital');
+
+INSERT INTO estadopago(codepag, nomepag, desepag) VALUES
+ (1,'Pendiente','Pago por confirmar'),
+ (2,'Realizado','Pago confirmado'),
+ (3,'Anulado','Pago anulado');
+
+INSERT INTO tipomovimiento(codtmov, nomtmov, destmov, sigtmov) VALUES
+ (1,'ENTRADA_COMPRA','Ingreso por compra a proveedor',1),
+ (2,'SALIDA_VENTA','Salida por venta',-1),
+ (3,'TRASLADO_SALIDA','Salida por traslado entre almacenes',-1),
+ (4,'TRASLADO_ENTRADA','Ingreso por traslado entre almacenes',1),
+ (5,'AJUSTE_POSITIVO','Corrección que aumenta el stock',1),
+ (6,'AJUSTE_NEGATIVO','Corrección que disminuye el stock',-1);
+
+INSERT INTO rol(codrol, nomrol, desrol) VALUES
+ (1,'Administrador','Acceso total al sistema'),
+ (2,'Vendedor','Registra pedidos y consulta inventario'),
+ (3,'Almacenero','Gestiona inventario, traslados y despachos'),
+ (4,'Contador','Gestiona facturación, compras y pagos');
+
+INSERT INTO modulo(codmod, nommod, desmod, rutmod) VALUES
+ (1,'Ventas','Pedidos, facturación y pagos de clientes','/ventas'),
+ (2,'Compras','Órdenes de compra, guías y facturas de proveedor','/compras'),
+ (3,'Inventario','Stock, traslados y kardex','/inventario'),
+ (4,'Despacho','Despachos, transporte e incidencias','/despacho'),
+ (5,'Personal','Empleados, asistencia y capacitaciones','/personal'),
+ (6,'Seguridad','Usuarios, roles y auditoría','/seguridad');
+
+INSERT INTO capacitacion(codcap, nomcap, descap, inicap, fincap, horcap) VALUES
+ (1,'Atención al cliente','Técnicas de atención y manejo de reclamos','2026-03-02','2026-03-06',20),
+ (2,'Manejo de inventarios','Control de stock, kardex y conteos cíclicos','2026-05-11','2026-05-15',24),
+ (3,'Seguridad y salud en el trabajo','Prevención de riesgos en almacén y reparto','2026-09-14','2026-09-18',16);
+
+INSERT INTO campana(codcam, nomcam, descam, inicam, fincam) VALUES
+ (1,'Fiestas Patrias 2026','Ofertas por 28 de julio','2026-07-20','2026-07-31'),
+ (2,'Campaña Navideña 2026','Ofertas de fin de año','2026-12-01','2026-12-31'),
+ (3,'Semana de Ofertas Octubre','Descuentos de mitad de temporada','2026-10-01','2026-10-31');
+
+INSERT INTO recompensa(codrec, nomrec, desrec, punrec) VALUES
+ (1,'Vale de S/ 10','Vale de descuento para la próxima compra',500),
+ (2,'Bolsa ecológica','Bolsa reutilizable con logo',150),
+ (3,'Descuento 15% próxima compra','Descuento sobre el total de una compra',800),
+ (4,'Canasta de productos','Canasta con productos de abarrotes',2000);
+
+INSERT INTO nivelfidelizacion(codniv, nomniv, minniv, desniv) VALUES
+ (1,'BRONCE',0,'Acumula 1 punto por cada S/ 1 de compra'),
+ (2,'PLATA',500,'Acumulación de puntos y ofertas exclusivas'),
+ (3,'ORO',1500,'Mayor acumulación, ofertas y atención preferente');
+
+INSERT INTO estadopedido(codeped, nomeped, deseped) VALUES
+ (1,'PENDIENTE','Pedido registrado, sin confirmar'),
+ (2,'CONFIRMADO','Pedido confirmado por el cliente'),
+ (3,'PAGADO','Pedido con pago registrado'),
+ (4,'DESPACHADO','Pedido entregado a despacho'),
+ (5,'ANULADO','Pedido anulado');
+
+INSERT INTO estadoenvio(codeenv, nomeenv, deseenv) VALUES
+ (1,'PREPARACION','Despacho en preparación'),
+ (2,'EN RUTA','Despacho en camino al cliente'),
+ (3,'ENTREGADO','Despacho entregado'),
+ (4,'INCIDENCIA','Despacho con incidencia abierta'),
+ (5,'ANULADO','Despacho anulado');
+
+INSERT INTO estadoordencompra(codeocom, nomeocom, deseocom) VALUES
+ (1,'EMITIDA','Orden emitida al proveedor'),
+ (2,'APROBADA','Orden aprobada'),
+ (3,'RECIBIDA PARCIAL','Mercadería recibida en parte'),
+ (4,'RECIBIDA','Mercadería recibida completa'),
+ (5,'ANULADA','Orden anulada');
+
+INSERT INTO estadocapacitacion(codecap, nomecap, desecap) VALUES
+ (1,'INSCRITO','Empleado inscrito en la capacitación'),
+ (2,'APROBADO','Empleado aprobó la capacitación'),
+ (3,'DESAPROBADO','Empleado desaprobó la capacitación'),
+ (4,'RETIRADO','Empleado se retiró de la capacitación');
+
+-- ================= ALMACENES Y SUCURSALES =================
+INSERT INTO sucursal(codsuc, nomsuc, dirsuc, telsuc, dessuc, coddis, codeope) VALUES
+ (1,'Sucursal Miraflores','Av. Larco 1234','014451234','Tienda principal',2,1),
+ (2,'Sucursal San Isidro','Av. Javier Prado Este 456','014452345','Atención a empresas',3,1),
+ (3,'Sucursal Surco','Av. Primavera 890','014453456','Tienda de barrio',4,1);
+
+INSERT INTO almacen(codalm, nomalm, diralm, capalm, coddis, codtalm, codsuc, codeope, desalm) VALUES
+ (1,'Almacén Central Ate','Av. Nicolás Ayllón 2100',5000,8,1,1,1,'Recepción y distribución general'),
+ (2,'Almacén Miraflores','Calle Los Pinos 150',800,2,2,1,1,'Apoyo a la sucursal Miraflores'),
+ (3,'Almacén San Isidro','Calle Las Begonias 320',900,3,2,2,1,'Apoyo a la sucursal San Isidro'),
+ (4,'Almacén Surco','Av. Caminos del Inca 700',700,4,2,3,2,'Apoyo a la sucursal Surco');
+
+-- ================= PERSONAS =================
+INSERT INTO empleado(codemp, nomemp, apepemp, apememp, docemp, feccemp, nacemp, diremp, telemp, celemp, coremp, desemp, coddis, codsex, codtipd, codcarg, codsuc) VALUES
+ (1,'Carlos','Ramírez','Torres','40123456','2020-01-15','Peruana','Av. Arequipa 1020, Lima','014441001','987654321','c.ramirez@megacentimetros.pe','Gerente fundador',2,2,1,1,1),
+ (2,'María Fernanda','Quispe','Huamán','41234567','2021-03-01','Peruana','Jr. Cusco 455, Lima','014441002','987654322','m.quispe@megacentimetros.pe',NULL,1,1,1,2,1),
+ (3,'José Luis','Mendoza','Rojas','42345678','2022-02-10','Peruana','Av. Brasil 2300, Lima','014441003','987654323','j.mendoza@megacentimetros.pe',NULL,1,2,1,3,1),
+ (4,'Ana Lucía','Paredes','Vega','43456789','2022-06-20','Peruana','Av. Universitaria 1500, Lima','014441004','987654324','a.paredes@megacentimetros.pe',NULL,3,1,1,3,2),
+ (5,'Pedro Pablo','Castillo','Díaz','44567890','2021-09-05','Peruana','Calle Los Olivos 88, Ate','014441005','987654325','p.castillo@megacentimetros.pe',NULL,8,2,1,4,1),
+ (6,'Luis Alberto','Flores','Gómez','45678901','2023-01-16','Peruana','Av. Nicolás Ayllón 3300, Ate','014441006','987654326','l.flores@megacentimetros.pe','Licencia A-IIIb',8,2,1,5,1),
+ (7,'Rosa Elena','Salazar','Cruz','46789012','2020-11-02','Peruana','Av. Benavides 760, Surco','014441007','987654327','r.salazar@megacentimetros.pe',NULL,4,1,1,6,1),
+ (8,'Jorge Antonio','Vargas','León','47890123','2024-04-08','Peruana','Av. Primavera 1450, Surco','014441008','987654328','j.vargas@megacentimetros.pe',NULL,4,2,1,3,3);
+
+INSERT INTO cliente(codcli, nomcli, apepcli, apemcli, razcli, doccli, feccli, naccli, dircli, telcli, celcli, corcli, descli, coddis, codsex, codtipd, codtcli) VALUES
+ (1,'Juan Carlos','Pérez','Soto',NULL,'70123456','2026-01-10 10:00:00','Peruana','Jr. Lampa 320, Lima',NULL,'955111001','jperez@correo.pe',NULL,1,2,1,1),
+ (2,'Lucía','Gómez','Rivas',NULL,'71234567','2026-02-14 11:30:00','Peruana','Av. Pardo 780, Miraflores',NULL,'955111002','lgomez@correo.pe',NULL,2,1,1,1),
+ (3,NULL,NULL,NULL,'Bodega Don Pepe S.A.C.','20512345678','2026-01-20 09:15:00',NULL,'Av. Los Héroes 1200, Lima','014461001','955111003','compras@donpepe.pe','Bodega con compras semanales',1,NULL,2,2),
+ (4,NULL,NULL,NULL,'Restaurante El Buen Sabor E.I.R.L.','20523456789','2026-03-05 15:00:00',NULL,'Av. Conquistadores 215, San Isidro','014461002','955111004','logistica@buensabor.pe',NULL,3,NULL,2,3),
+ (5,'Mark','Thompson','Reyes',NULL,'001234567','2026-05-18 12:45:00','Estadounidense','Calle Monte Rosa 255, Surco',NULL,'955111005','mthompson@correo.com',NULL,4,2,3,1),
+ (6,NULL,NULL,NULL,'Distribuidora Andina S.A.C.','20534567890','2026-04-02 08:30:00',NULL,'Av. Argentina 4100, Callao','014461003','955111006','pedidos@andina.pe','Distribuidor zona Callao',7,NULL,2,2);
+
+INSERT INTO proveedor(codprov, nomprov, apepprov, apemprov, razprov, rucprov, corprov, telprov, celprov, fecprov, desprov, dirprov, coddis, codeeva, feceva) VALUES
+ (1,NULL,NULL,NULL,'Distribuidora Alimentos del Perú S.A.C.','20601234567','ventas@alimentosperu.pe','014471001','944222001','2025-11-10 10:00:00','Abarrotes y menestras','Av. Industrial 450, Ate',8,2,'2025-11-20'),
+ (2,NULL,NULL,NULL,'Lácteos del Valle S.A.C.','20602345678','comercial@lacteosvalle.pe','014471002','944222002','2025-12-01 09:30:00','Lácteos y derivados','Av. Separadora 800, Ate',8,2,'2025-12-10'),
+ (3,NULL,NULL,NULL,'Bebidas Nacionales S.A.','20603456789','ventas@bebidasnac.pe','014471003','944222003','2026-01-15 11:00:00','Gaseosas y cervezas','Av. Nicolás Ayllón 5000, Ate',8,2,'2026-01-25'),
+ (4,NULL,NULL,NULL,'Productos de Limpieza Brillo S.A.C.','20604567890','info@brillo.pe','014471004','944222004','2026-09-20 16:00:00','Evaluación en curso','Jr. Huancavelica 90, Callao',7,1,NULL);
+
+-- ================= PRODUCTOS E INVENTARIO =================
+INSERT INTO producto(codpro, skupro, nompro, despro, fecpro, prepro, cospro, codcat, codmar, codtemp, codumed) VALUES
+ (1,'ABR-0001','Arroz Superior 5 kg','Arroz extra de grano largo','2025-11-15 10:00:00',24.90,20.50,1,1,2,1),
+ (2,'ABR-0002','Aceite Vegetal 1 L','Aceite vegetal comestible','2025-11-15 10:05:00',9.90,7.80,1,5,1,1),
+ (3,'ABR-0003','Azúcar Rubia 1 kg','Azúcar rubia de caña','2025-11-15 10:10:00',4.50,3.60,1,1,2,1),
+ (4,'LAC-0001','Leche Evaporada 400 g','Leche evaporada entera en lata','2025-12-10 09:00:00',4.20,3.30,3,2,4,1),
+ (5,'LAC-0002','Yogurt Natural 1 L','Yogurt natural sin azúcar','2025-12-10 09:05:00',8.50,6.90,3,2,1,1),
+ (6,'LAC-0003','Mantequilla 200 g','Mantequilla con sal','2025-12-10 09:10:00',7.90,6.20,3,4,5,1),
+ (7,'BEB-0001','Gaseosa 2.5 L','Gaseosa sabor cola','2026-01-20 10:00:00',11.50,9.20,2,8,1,1),
+ (8,'BEB-0002','Cerveza Lata 355 ml','Cerveza rubia en lata','2026-01-20 10:05:00',4.50,3.20,2,3,4,1),
+ (9,'LIM-0001','Detergente en Polvo 2 kg','Detergente para ropa','2026-02-05 11:00:00',19.90,15.80,4,6,2,1),
+ (10,'LIM-0002','Lejía 1 L','Lejía desinfectante','2026-02-05 11:05:00',4.90,3.50,4,6,1,1),
+ (11,'CUI-0001','Pasta Dental 75 ml','Pasta dental con flúor','2026-02-12 12:00:00',6.50,4.80,5,7,3,1),
+ (12,'ABR-0004','Fideos Spaghetti 500 g','Fideos de sémola','2025-11-15 10:15:00',3.80,2.90,1,5,2,1);
+
+INSERT INTO stockalmacen(codpro, codalm, cansalm, minsalm) VALUES
+ (1,1,378,50),(2,1,299,50),(3,1,170,40),(4,1,232,60),(5,1,96,30),(6,1,78,30),
+ (7,1,150,40),(8,1,294,60),(9,1,100,30),(10,1,120,30),(11,1,200,40),(12,1,180,40),
+ (1,2,100,20),(2,2,60,15),(4,2,30,20),(7,2,25,10),
+ (1,3,40,10),(4,3,96,20),(8,3,173,40),(10,3,50,15),
+ (1,4,60,15),(7,4,40,10),(11,4,90,20),(12,4,120,25);
+
+INSERT INTO trasladoalmacen(codtrasl, fectrasl, esttrasl, codalmori, codalmdes, codemp) VALUES
+ (1,'2026-09-20 09:00:00','RECIBIDO',1,2,5),
+ (2,'2026-09-28 10:30:00','RECIBIDO',1,3,5),
+ (3,'2026-10-10 08:15:00','EN TRANSITO',1,2,5);
+
+INSERT INTO detalletraslado(coddtrasl, candtrasl, codpro, codtrasl) VALUES
+ (1,100,1,1),(2,60,2,1),
+ (3,120,4,2),(4,200,8,2),
+ (5,80,7,3),(6,40,9,3);
+
+INSERT INTO movimientoinventario(codminv, fecminv, canminv, refminv, codpro, codalm, codtmov, codemp) VALUES
+ (1,'2026-09-10 09:00:00',500,'OC-000001',1,1,1,5),
+ (2,'2026-09-10 09:00:00',300,'OC-000001',2,1,1,5),
+ (3,'2026-09-10 09:00:00',200,'OC-000001',3,1,1,5),
+ (4,'2026-09-20 10:00:00',400,'OC-000002',4,1,1,5),
+ (5,'2026-09-20 10:00:00',100,'OC-000002',5,1,1,5),
+ (6,'2026-09-20 09:00:00',100,'TR-000001',1,1,3,5),
+ (7,'2026-09-20 15:00:00',100,'TR-000001',1,2,4,5),
+ (8,'2026-09-20 09:00:00',60,'TR-000001',2,1,3,5),
+ (9,'2026-09-20 15:00:00',60,'TR-000001',2,2,4,5),
+ (10,'2026-09-28 10:30:00',120,'TR-000002',4,1,3,5),
+ (11,'2026-09-28 16:00:00',120,'TR-000002',4,3,4,5),
+ (12,'2026-10-02 10:30:00',2,'B001-00000001',1,1,2,3),
+ (13,'2026-10-02 10:30:00',1,'B001-00000001',2,1,2,3),
+ (14,'2026-10-03 12:00:00',20,'F001-00000001',1,1,2,3),
+ (15,'2026-10-05 09:45:00',24,'F001-00000002',4,3,2,4),
+ (16,'2026-10-06 18:00:00',3,'AJ-000001',8,3,6,2);
+
+-- ================= MARKETING =================
+INSERT INTO campanasegmento(codcam, codtcli) VALUES
+ (1,1),(1,2),(2,1),(2,3),(3,1),(3,2),(3,3);
+
+INSERT INTO promocion(codprom, nomprom, desprom, tipprom, valprom, iniprom, finprom, codcam, codpro, codcat) VALUES
+ (1,'Descuento Abarrotes Fiestas Patrias','10% en toda la categoría Abarrotes','PORCENTAJE',10.00,'2026-07-20','2026-07-31',1,NULL,1),
+ (2,'Rebaja Aceite Vegetal','S/ 1.50 menos por unidad','MONTO',1.50,'2026-10-01','2026-10-31',3,2,NULL),
+ (3,'Descuento Bebidas Octubre','15% en toda la categoría Bebidas','PORCENTAJE',15.00,'2026-10-01','2026-10-31',3,NULL,2),
+ (4,'Navidad Lácteos','12% en lácteos y derivados','PORCENTAJE',12.00,'2026-12-01','2026-12-31',2,NULL,3);
+
+-- ================= VENTAS =================
+INSERT INTO pedido(codped, fecped, totped, codeped, codcli, codemp, codsuc) VALUES
+ (1,'2026-10-02 10:15:00',82.65,4,1,3,1),
+ (2,'2026-10-03 11:40:00',834.60,4,3,3,1),
+ (3,'2026-10-05 09:20:00',241.60,3,4,4,2),
+ (4,'2026-10-07 16:05:00',24.40,1,5,8,3),
+ (5,'2026-10-08 12:30:00',396.50,2,6,3,1),
+ (6,'2026-10-09 10:00:00',49.80,4,2,3,1);
+
+INSERT INTO detallepedido(coddped, candped, predped, desdped, subdped, codped, codpro, codalm, codprom) VALUES
+ (1,2,24.90,0.00,49.80,1,1,1,NULL),
+ (2,1,9.90,0.00,9.90,1,2,1,NULL),
+ (3,6,4.50,4.05,22.95,1,8,1,3),
+ (4,20,24.90,0.00,498.00,2,1,1,NULL),
+ (5,30,4.50,0.00,135.00,2,3,1,NULL),
+ (6,48,4.20,0.00,201.60,2,4,1,NULL),
+ (7,24,4.20,0.00,100.80,3,4,3,NULL),
+ (8,10,4.90,0.00,49.00,3,10,3,NULL),
+ (9,24,4.50,16.20,91.80,3,8,3,3),
+ (10,2,6.50,0.00,13.00,4,11,4,NULL),
+ (11,3,3.80,0.00,11.40,4,12,4,NULL),
+ (12,15,19.90,0.00,298.50,5,9,1,NULL),
+ (13,20,4.90,0.00,98.00,5,10,1,NULL),
+ (14,4,8.50,0.00,34.00,6,5,1,NULL),
+ (15,2,7.90,0.00,15.80,6,6,1,NULL);
+
+INSERT INTO facturacion(codfac, serfac, numfac, fecfac, subfac, igvfac, totfac, estfac, codped, codtcom) VALUES
+ (1,'B001',1,'2026-10-02 10:20:00',82.65,14.88,97.53,'PAGADA',1,2),
+ (2,'F001',1,'2026-10-03 12:00:00',834.60,150.23,984.83,'PAGADA',2,1),
+ (3,'F001',2,'2026-10-05 09:30:00',241.60,43.49,285.09,'PAGADA',3,1),
+ (4,'B001',2,'2026-10-09 10:10:00',49.80,8.96,58.76,'EMITIDA',6,2);
+
+-- ================= COMPRAS =================
+INSERT INTO ordencompra(codocom, fecocom, codeocom, fecentocom, conocom, totocom, codprov, codalm, codemp) VALUES
+ (1,'2026-09-05 10:00:00',4,'2026-09-10','Entrega en almacén central, pago a 30 días',13310.00,1,1,2),
+ (2,'2026-09-12 11:00:00',3,'2026-09-20','Entrega en almacén central, pago a 30 días',2355.00,2,1,2),
+ (3,'2026-10-08 09:30:00',2,'2026-10-18','Entrega en almacén central, pago a 15 días',3744.00,3,1,2);
+
+INSERT INTO detalleordencompra(coddocom, candocom, cosdocom, subdocom, codocom, codpro) VALUES
+ (1,500,20.50,10250.00,1,1),
+ (2,300,7.80,2340.00,1,2),
+ (3,200,3.60,720.00,1,3),
+ (4,400,3.30,1320.00,2,4),
+ (5,150,6.90,1035.00,2,5),
+ (6,240,9.20,2208.00,3,7),
+ (7,480,3.20,1536.00,3,8);
+
+INSERT INTO guiaingreso(codgin, fecgin, estgin, codocom, codalm, codemp) VALUES
+ (1,'2026-09-10 08:50:00','CONFORME',1,1,5),
+ (2,'2026-09-20 09:40:00','OBSERVADA',2,1,5);
+
+INSERT INTO detalleguiaingreso(coddgin, candgin, codpro, codgin) VALUES
+ (1,500,1,1),(2,300,2,1),(3,200,3,1),
+ (4,400,4,2),(5,100,5,2);
+
+INSERT INTO facturaproveedor(codfprov, numfprov, fecfprov, venfprov, totfprov, estfprov, codocom, codprov) VALUES
+ (1,'F001-000458','2026-09-10','2026-10-10',13310.00,'PAGADA',1,1),
+ (2,'F005-001204','2026-09-20','2026-10-20',2010.00,'PAGADA PARCIAL',2,2);
+
+-- ================= DESPACHO =================
+INSERT INTO transporte(codtra, platra, captra, destra, codttra, codetra) VALUES
+ (1,'AQP-452',1500.00,'Furgón de reparto urbano',1,1),
+ (2,'BNT-781',8000.00,'Camión para pedidos mayoristas',2,2),
+ (3,'CMR-310',600.00,'Camioneta en revisión mecánica',3,3);
+
+INSERT INTO despacho(coddes, numdes, fecdes, dirdes, codeenv, codfac, codemp, codtra, coddis) VALUES
+ (1,'DES-000001','2026-10-02 14:00:00','Jr. Lampa 320, Lima',3,1,6,1,1),
+ (2,'DES-000002','2026-10-04 09:00:00','Av. Los Héroes 1200, Lima',3,2,6,2,1),
+ (3,'DES-000003','2026-10-10 10:00:00','Av. Pardo 780, Miraflores',4,4,6,2,2);
+
+INSERT INTO detalledespacho(coddetdes, candetdes, codpro, codalm, coddes) VALUES
+ (1,2,1,1,1),(2,1,2,1,1),(3,6,8,1,1),
+ (4,20,1,1,2),(5,30,3,1,2),(6,48,4,1,2),
+ (7,4,5,1,3),(8,2,6,1,3);
+
+INSERT INTO incidenciadespacho(codinc, fecinc, desinc, accinc, estinc, coddes, codtinc) VALUES
+ (1,'2026-10-04 10:15:00','Retraso de 30 minutos por tráfico en Av. Javier Prado','Se notificó al cliente y se entregó el mismo día','RESUELTA',2,1),
+ (2,'2026-10-10 11:30:00','Cliente no se encontraba en el domicilio al momento de la entrega','Se reprogramó la entrega para el día siguiente','EN PROCESO',3,4);
+
+-- ================= PERSONAL =================
+INSERT INTO asistencia(codasi, fecasi, entasi, salasi, codeasis, codemp) VALUES
+ (1,'2026-10-12','08:00:00','17:00:00',1,1),
+ (2,'2026-10-12','08:25:00','17:00:00',2,2),
+ (3,'2026-10-12','07:58:00','17:02:00',1,3),
+ (4,'2026-10-12','08:40:00','17:05:00',2,4),
+ (5,'2026-10-12',NULL,NULL,3,5),
+ (6,'2026-10-12','07:30:00','16:30:00',1,6),
+ (7,'2026-10-12',NULL,NULL,4,7),
+ (8,'2026-10-12','08:00:00','17:00:00',1,8);
+
+INSERT INTO empleadocapacitacion(codemp, codcap, notecap, codecap, feccomp) VALUES
+ (3,1,17.50,2,'2026-03-06'),
+ (4,1,14.00,2,'2026-03-06'),
+ (8,1,16.00,2,'2026-03-06'),
+ (5,2,9.50,3,'2026-05-15'),
+ (5,3,NULL,1,NULL),
+ (6,3,NULL,1,NULL);
+
+INSERT INTO pagocliente(codpcli, fecpcli, monpcli, numpcli, codfac, codmpag, codepag) VALUES
+ (1,'2026-10-02 10:20:00',97.53,'OP-0001',1,1,2),
+ (2,'2026-10-03 12:10:00',500.00,'TRF-77231',2,3,2),
+ (3,'2026-10-06 15:00:00',484.83,'TRF-78012',2,3,2),
+ (4,'2026-10-05 09:35:00',285.09,'POS-55120',3,2,2),
+ (5,'2026-10-09 10:20:00',58.76,NULL,4,4,1);
+
+INSERT INTO pagoproveedor(codpprov, fecpprov, monpprov, numpprov, codfprov, codmpag, codepag) VALUES
+ (1,'2026-09-30 11:00:00',13310.00,'TRF-20260930-001',1,3,2),
+ (2,'2026-10-05 10:30:00',1000.00,'TRF-20261005-002',2,3,2);
+
+-- ================= SEGURIDAD Y AUDITORÍA =================
+-- passusu: hash de ejemplo (NO es una contraseña real; la app debe generar el suyo)
+INSERT INTO usuario(codusu, nomusu, passusu, estusu, intusu, ultusu, codemp, codrol) VALUES
+ (1,'admin.cramirez','$2b$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy','ACTIVO',0,'2026-10-12 08:01:00',1,1),
+ (2,'mquispe','$2b$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy','ACTIVO',0,'2026-10-12 08:30:00',2,3),
+ (3,'jmendoza','$2b$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy','ACTIVO',0,'2026-10-12 07:59:00',3,2),
+ (4,'aparedes','$2b$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy','ACTIVO',1,'2026-10-12 08:41:00',4,2),
+ (5,'rsalazar','$2b$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy','ACTIVO',0,'2026-10-09 09:10:00',7,4),
+ (6,'jvargas','$2b$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy','BLOQUEADO',5,'2026-10-08 08:05:00',8,2);
+
+INSERT INTO rolpermiso(codrol, codmod, lecper, escper, eliper) VALUES
+ (1,1,1,1,1),(1,2,1,1,1),(1,3,1,1,1),(1,4,1,1,1),(1,5,1,1,1),(1,6,1,1,1),
+ (2,1,1,1,0),(2,3,1,0,0),
+ (3,2,1,0,0),(3,3,1,1,0),(3,4,1,1,0),
+ (4,1,1,0,0),(4,2,1,1,0);
+
+INSERT INTO auditorialog(codlog, feclog, acclog, tablog, reglog, iplog, codusu, codmod) VALUES
+ (1,'2026-10-12 07:59:00','LOGIN',NULL,NULL,'192.168.1.25',3,NULL),
+ (2,'2026-10-02 10:15:00','INSERT','pedido','1','192.168.1.25',3,1),
+ (3,'2026-10-02 10:20:00','INSERT','facturacion','1','192.168.1.25',3,1),
+ (4,'2026-10-05 09:20:00','INSERT','pedido','3','192.168.1.31',4,1),
+ (5,'2026-10-06 18:00:00','INSERT','movimientoinventario','16','192.168.1.40',2,3),
+ (6,'2026-10-08 08:05:00','LOGIN',NULL,NULL,'192.168.1.52',6,NULL),
+ (7,'2026-10-09 09:10:00','UPDATE','facturacion','4','192.168.1.60',5,1),
+ (8,'2026-10-12 08:01:00','LOGIN',NULL,NULL,'192.168.1.10',1,NULL);
+
+-- ================= FIDELIZACIÓN =================
+INSERT INTO cuentapuntos(codcpun, salcpun, feccpun, codcli, codniv) VALUES
+ (1,97,'2026-10-02 10:20:00',1,1),
+ (2,484,'2026-10-03 12:00:00',3,2),
+ (3,285,'2026-10-05 09:30:00',4,1),
+ (4,0,'2026-10-09 10:10:00',2,1);
+
+INSERT INTO movimientopuntos(codmpun, fecmpun, canmpun, tipmpun, codcpun, codfac) VALUES
+ (1,'2026-10-02 10:20:00',97,'ACUMULACION',1,1),
+ (2,'2026-10-03 12:00:00',984,'ACUMULACION',2,2),
+ (3,'2026-10-06 18:00:00',500,'CANJE',2,NULL),
+ (4,'2026-10-05 09:30:00',285,'ACUMULACION',3,3);
+
+INSERT INTO canjerecompensa(codcan, feccan, puncan, codcpun, codrec) VALUES
+ (1,'2026-10-06 18:00:00',500,2,1);
