@@ -1,477 +1,642 @@
 -- --------------------------------------------
--- BASE DE DATOS INTEGRADA - PLAZA MEGACENTÍMETROS
--- Versión 2: incluye mejoras tomadas de la comparación con otros modelos.
--- Las líneas nuevas o modificadas están marcadas con [NUEVO] o [CAMBIO].
--- Requiere MySQL 8.0.16+ para que los CHECK se apliquen.
+-- BASE DE DATOS INTEGRADA: Plaza Megacentímetros S.A.C.
+-- Caso de Estudio - Sistema Integrado de Gestión Empresarial
+-- Versión: 2.3
 -- --------------------------------------------
 
 DROP DATABASE IF EXISTS bdmegacentimetros;
-CREATE DATABASE bdmegacentimetros CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+CREATE DATABASE bdmegacentimetros
+CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 USE bdmegacentimetros;
 
 -- --------------------------------------------
--- COLUMNAS DE AUDITORÍA POR FILA (aplicadas a tablas transaccionales)
---   usucre : usuario que creó el registro   -> responde "¿quién lo registró?"
---   feccre : fecha/hora de creación          -> se llena sola con CURRENT_TIMESTAMP
---   usuact : último usuario que lo modificó  -> lo llena la aplicación al editar
---   fecact : fecha/hora de la última edición -> ON UPDATE la actualiza MySQL solo
--- Complementan a auditorialog: el log guarda TODO el historial;
--- estas columnas dan la respuesta rápida sin consultar el log.
+-- COLUMNAS DE AUDITORÍA POR FILA (aplicadas a TODAS las tablas)
+--   estado : estado (activo/inactivo).
+--   usucre : usuario que creó el registro   
+--   feccre : fecha/hora de creación      
+--   usuact : último usuario que lo modificó  
+--   fecact : fecha/hora de la última edición 
 -- --------------------------------------------
 
 -- --------------------------------------------
 -- TABLAS SIMPLES / CATÁLOGOS
 -- --------------------------------------------
-
 CREATE TABLE distrito(
-    coddis INT PRIMARY KEY AUTO_INCREMENT,
-    nomdis VARCHAR(50) NOT NULL UNIQUE,
-    estdis BIT NOT NULL DEFAULT 1
-)ENGINE=InnoDB;
+    coddis INT PRIMARY KEY AUTO_INCREMENT COMMENT 'Identificador único (PK)',
+    nomdis VARCHAR(50) NOT NULL UNIQUE COMMENT 'Ej: Lima, Miraflores, San Isidro',
+    desdis VARCHAR(300) NULL COMMENT 'Descripción del distrito',
+    estdis BIT NOT NULL DEFAULT 1 COMMENT 'Estado del registro: 1 = activo, 0 = inactivo',
+    usucre VARCHAR(50) NOT NULL DEFAULT 'SYSTEM' COMMENT 'Usuario que creó el registro',
+    feccre DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Fecha y hora de creación (automática)',
+    usuact VARCHAR(50) NULL COMMENT 'Último usuario que modificó el registro (lo llena la aplicación)',
+    fecact DATETIME NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP COMMENT 'Fecha y hora de la última modificación (automática)'
+)ENGINE=InnoDB COMMENT='Distritos geográficos donde se ubican clientes, proveedores, sucursales y almacenes';
 
 CREATE TABLE sexo(
-    codsex INT PRIMARY KEY AUTO_INCREMENT,
-    nomsex VARCHAR(30) NOT NULL UNIQUE,
-    estsex BIT NOT NULL DEFAULT 1
-)ENGINE=InnoDB;
+    codsex INT PRIMARY KEY AUTO_INCREMENT COMMENT 'Identificador único (PK)',
+    nomsex VARCHAR(30) NOT NULL UNIQUE COMMENT 'Ej: Femenino, Masculino',
+    dessex VARCHAR(300) NULL COMMENT 'Descripción del sexo',
+    estsex BIT NOT NULL DEFAULT 1 COMMENT 'Estado del registro: 1 = activo, 0 = inactivo',
+    usucre VARCHAR(50) NOT NULL DEFAULT 'SYSTEM' COMMENT 'Usuario que creó el registro',
+    feccre DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Fecha y hora de creación (automática)',
+    usuact VARCHAR(50) NULL COMMENT 'Último usuario que modificó el registro (lo llena la aplicación)',
+    fecact DATETIME NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP COMMENT 'Fecha y hora de la última modificación (automática)'
+)ENGINE=InnoDB COMMENT='Sexo de la persona';
 
 CREATE TABLE tipodocumento(
-    codtipd INT PRIMARY KEY AUTO_INCREMENT,
-    nomtipd VARCHAR(30) NOT NULL UNIQUE,
-    esttipd BIT NOT NULL DEFAULT 1
-)ENGINE=InnoDB;
+    codtipd INT PRIMARY KEY AUTO_INCREMENT COMMENT 'Identificador único (PK)',
+    nomtipd VARCHAR(30) NOT NULL UNIQUE COMMENT 'Ej: DNI, RUC, Carnet de Extranjería',
+    destipd VARCHAR(300) NULL COMMENT 'Descripción del tipo de documento',
+    esttipd BIT NOT NULL DEFAULT 1 COMMENT 'Estado del registro: 1 = activo, 0 = inactivo',
+    usucre VARCHAR(50) NOT NULL DEFAULT 'SYSTEM' COMMENT 'Usuario que creó el registro',
+    feccre DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Fecha y hora de creación (automática)',
+    usuact VARCHAR(50) NULL COMMENT 'Último usuario que modificó el registro (lo llena la aplicación)',
+    fecact DATETIME NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP COMMENT 'Fecha y hora de la última modificación (automática)'
+)ENGINE=InnoDB COMMENT='Tipo de documento de identificación (DNI, RUC, CE)';
 
 CREATE TABLE tipocliente(
-    codtcli INT PRIMARY KEY AUTO_INCREMENT,
-    nomtcli VARCHAR(40) NOT NULL UNIQUE,
-    esttcli BIT NOT NULL DEFAULT 1
-)ENGINE=InnoDB;
+    codtcli INT PRIMARY KEY AUTO_INCREMENT COMMENT 'Identificador único (PK)',
+    nomtcli VARCHAR(40) NOT NULL UNIQUE COMMENT 'Ej: Mayorista, Minorista',
+    destcli VARCHAR(300) NULL COMMENT 'Descripción del tipo de cliente',
+    esttcli BIT NOT NULL DEFAULT 1 COMMENT 'Estado del registro: 1 = activo, 0 = inactivo',
+    usucre VARCHAR(50) NOT NULL DEFAULT 'SYSTEM' COMMENT 'Usuario que creó el registro',
+    feccre DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Fecha y hora de creación (automática)',
+    usuact VARCHAR(50) NULL COMMENT 'Último usuario que modificó el registro (lo llena la aplicación)',
+    fecact DATETIME NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP COMMENT 'Fecha y hora de la última modificación (automática)'
+)ENGINE=InnoDB COMMENT='Segmenta al cliente (mayorista/minorista) para atenderlo distinto';
 
 CREATE TABLE tipocomprobante(
-    codtcom INT PRIMARY KEY AUTO_INCREMENT,
-    nomtcom VARCHAR(40) NOT NULL UNIQUE,
-    esttcom BIT NOT NULL DEFAULT 1
-)ENGINE=InnoDB;
+    codtcom INT PRIMARY KEY AUTO_INCREMENT COMMENT 'Identificador único (PK)',
+    nomtcom VARCHAR(40) NOT NULL UNIQUE COMMENT 'Ej: Factura, Boleta',
+    destcom VARCHAR(300) NULL COMMENT 'Descripción del tipo de comprobante',
+    esttcom BIT NOT NULL DEFAULT 1 COMMENT 'Estado del registro: 1 = activo, 0 = inactivo',
+    usucre VARCHAR(50) NOT NULL DEFAULT 'SYSTEM' COMMENT 'Usuario que creó el registro',
+    feccre DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Fecha y hora de creación (automática)',
+    usuact VARCHAR(50) NULL COMMENT 'Último usuario que modificó el registro (lo llena la aplicación)',
+    fecact DATETIME NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP COMMENT 'Fecha y hora de la última modificación (automática)'
+)ENGINE=InnoDB COMMENT='Tipo de comprobante de pago (factura, boleta)';
 
 CREATE TABLE categoriaproducto(
-    codcat INT PRIMARY KEY AUTO_INCREMENT,
-    nomcat VARCHAR(50) NOT NULL UNIQUE,
-    estcat BIT NOT NULL DEFAULT 1
-)ENGINE=InnoDB;
+    codcat INT PRIMARY KEY AUTO_INCREMENT COMMENT 'Identificador único (PK)',
+    nomcat VARCHAR(50) NOT NULL UNIQUE COMMENT 'Ej: Abarrotes, Bebidas, Limpieza',
+    descat VARCHAR(300) NULL COMMENT 'Descripción de la categoría de producto',
+    estcat BIT NOT NULL DEFAULT 1 COMMENT 'Estado del registro: 1 = activo, 0 = inactivo',
+    usucre VARCHAR(50) NOT NULL DEFAULT 'SYSTEM' COMMENT 'Usuario que creó el registro',
+    feccre DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Fecha y hora de creación (automática)',
+    usuact VARCHAR(50) NULL COMMENT 'Último usuario que modificó el registro (lo llena la aplicación)',
+    fecact DATETIME NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP COMMENT 'Fecha y hora de la última modificación (automática)'
+)ENGINE=InnoDB COMMENT='Clasifica el producto por categoría';
 
 CREATE TABLE marcaproducto(
-    codmar INT PRIMARY KEY AUTO_INCREMENT,
-    nommar VARCHAR(50) NOT NULL UNIQUE,
-    estmar BIT NOT NULL DEFAULT 1
-)ENGINE=InnoDB;
+    codmar INT PRIMARY KEY AUTO_INCREMENT COMMENT 'Identificador único (PK)',
+    nommar VARCHAR(50) NOT NULL UNIQUE COMMENT 'Ej: Marca A, Marca B',
+    desmar VARCHAR(300) NULL COMMENT 'Descripción de la marca',
+    estmar BIT NOT NULL DEFAULT 1 COMMENT 'Estado del registro: 1 = activo, 0 = inactivo',
+    usucre VARCHAR(50) NOT NULL DEFAULT 'SYSTEM' COMMENT 'Usuario que creó el registro',
+    feccre DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Fecha y hora de creación (automática)',
+    usuact VARCHAR(50) NULL COMMENT 'Último usuario que modificó el registro (lo llena la aplicación)',
+    fecact DATETIME NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP COMMENT 'Fecha y hora de la última modificación (automática)'
+)ENGINE=InnoDB COMMENT='Clasifica el producto por marca';
 
 CREATE TABLE tipoempaque(
-    codtemp INT PRIMARY KEY AUTO_INCREMENT,
-    nomtemp VARCHAR(40) NOT NULL UNIQUE,
-    esttemp BIT NOT NULL DEFAULT 1
-)ENGINE=InnoDB;
+    codtemp INT PRIMARY KEY AUTO_INCREMENT COMMENT 'Identificador único (PK)',
+    nomtemp VARCHAR(40) NOT NULL UNIQUE COMMENT 'Ej: Caja, Bolsa, Botella',
+    destemp VARCHAR(300) NULL COMMENT 'Descripción del tipo de empaque',
+    esttemp BIT NOT NULL DEFAULT 1 COMMENT 'Estado del registro: 1 = activo, 0 = inactivo',
+    usucre VARCHAR(50) NOT NULL DEFAULT 'SYSTEM' COMMENT 'Usuario que creó el registro',
+    feccre DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Fecha y hora de creación (automática)',
+    usuact VARCHAR(50) NULL COMMENT 'Último usuario que modificó el registro (lo llena la aplicación)',
+    fecact DATETIME NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP COMMENT 'Fecha y hora de la última modificación (automática)'
+)ENGINE=InnoDB COMMENT='Tipos de empaque de los productos';
 
--- [NUEVO] Unidad de medida (UND, KG, LT, CAJA...).
--- Catálogo y no texto libre: así "kg", "Kg" y "kilos" no conviven como valores distintos.
 CREATE TABLE unidadmedida(
-    codumed INT PRIMARY KEY AUTO_INCREMENT,
-    nomumed VARCHAR(30) NOT NULL UNIQUE,
-    abrumed VARCHAR(10) NOT NULL UNIQUE,   -- abreviatura que se imprime en comprobantes
-    estumed BIT NOT NULL DEFAULT 1
-)ENGINE=InnoDB;
+    codumed INT PRIMARY KEY AUTO_INCREMENT COMMENT 'Identificador único (PK)',
+    nomumed VARCHAR(30) NOT NULL UNIQUE COMMENT 'Ej: Unidad, Kilogramo, Litro',
+    abrumed VARCHAR(10) NOT NULL UNIQUE COMMENT 'Abreviatura impresa en comprobantes. Ej: UND, KG, LT',  -- abreviatura que se imprime en comprobantes
+    desumed VARCHAR(300) NULL COMMENT 'Descripción de la unidad de medida',
+    estumed BIT NOT NULL DEFAULT 1 COMMENT 'Estado del registro: 1 = activo, 0 = inactivo',
+    usucre VARCHAR(50) NOT NULL DEFAULT 'SYSTEM' COMMENT 'Usuario que creó el registro',
+    feccre DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Fecha y hora de creación (automática)',
+    usuact VARCHAR(50) NULL COMMENT 'Último usuario que modificó el registro (lo llena la aplicación)',
+    fecact DATETIME NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP COMMENT 'Fecha y hora de la última modificación (automática)'
+)ENGINE=InnoDB COMMENT='Unidades en que se vende un producto (UND, KG, LT)';
 
 CREATE TABLE tipoalmacen(
-    codtalm INT PRIMARY KEY AUTO_INCREMENT,
-    nomtalm VARCHAR(40) NOT NULL UNIQUE,
-    esttalm BIT NOT NULL DEFAULT 1
-)ENGINE=InnoDB;
+    codtalm INT PRIMARY KEY AUTO_INCREMENT COMMENT 'Identificador único (PK)',
+    nomtalm VARCHAR(40) NOT NULL UNIQUE COMMENT 'Ej: CENTRAL, REGIONAL, TRANSITO',
+    destalm VARCHAR(300) NULL COMMENT 'Descripción del tipo de almacén',
+    esttalm BIT NOT NULL DEFAULT 1 COMMENT 'Estado del registro: 1 = activo, 0 = inactivo',
+    usucre VARCHAR(50) NOT NULL DEFAULT 'SYSTEM' COMMENT 'Usuario que creó el registro',
+    feccre DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Fecha y hora de creación (automática)',
+    usuact VARCHAR(50) NULL COMMENT 'Último usuario que modificó el registro (lo llena la aplicación)',
+    fecact DATETIME NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP COMMENT 'Fecha y hora de la última modificación (automática)'
+)ENGINE=InnoDB COMMENT='Tipos de almacén';
 
 CREATE TABLE estadooperativo(
-    codeope INT PRIMARY KEY AUTO_INCREMENT,
-    nomeope VARCHAR(40) NOT NULL UNIQUE,
-    deseope VARCHAR(300) NULL
-)ENGINE=InnoDB;
+    codeope INT PRIMARY KEY AUTO_INCREMENT COMMENT 'Identificador único (PK)',
+    nomeope VARCHAR(40) NOT NULL UNIQUE COMMENT 'Ej: Operativo, Mantenimiento, Cerrado',
+    deseope VARCHAR(300) NULL COMMENT 'Descripción del estado',
+    esteope BIT NOT NULL DEFAULT 1 COMMENT 'Estado del registro: 1 = activo, 0 = inactivo',
+    usucre VARCHAR(50) NOT NULL DEFAULT 'SYSTEM' COMMENT 'Usuario que creó el registro',
+    feccre DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Fecha y hora de creación (automática)',
+    usuact VARCHAR(50) NULL COMMENT 'Último usuario que modificó el registro (lo llena la aplicación)',
+    fecact DATETIME NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP COMMENT 'Fecha y hora de la última modificación (automática)'
+)ENGINE=InnoDB COMMENT='Estado operativo general de sucursales y almacenes';
 
--- [NUEVO] Administrativo / Operativo (lo pide el enunciado).
 CREATE TABLE tipoempleado(
-    codtiemp INT PRIMARY KEY AUTO_INCREMENT,
-    nomtiemp VARCHAR(30) NOT NULL UNIQUE,
-    esttiemp BIT NOT NULL DEFAULT 1
-)ENGINE=InnoDB;
+    codtiemp INT PRIMARY KEY AUTO_INCREMENT COMMENT 'Identificador único (PK)',
+    nomtiemp VARCHAR(30) NOT NULL UNIQUE COMMENT 'Ej: Administrativo, Operativo',
+    destiemp VARCHAR(300) NULL COMMENT 'Descripción del tipo de empleado',
+    esttiemp BIT NOT NULL DEFAULT 1 COMMENT 'Estado del registro: 1 = activo, 0 = inactivo',
+    usucre VARCHAR(50) NOT NULL DEFAULT 'SYSTEM' COMMENT 'Usuario que creó el registro',
+    feccre DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Fecha y hora de creación (automática)',
+    usuact VARCHAR(50) NULL COMMENT 'Último usuario que modificó el registro (lo llena la aplicación)',
+    fecact DATETIME NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP COMMENT 'Fecha y hora de la última modificación (automática)'
+)ENGINE=InnoDB COMMENT='Diferencia entre personal administrativo y operativo';
 
 CREATE TABLE cargo(
-    codcarg INT PRIMARY KEY AUTO_INCREMENT,
-    nomcarg VARCHAR(50) NOT NULL UNIQUE,
-    estcarg BIT NOT NULL DEFAULT 1,
-    codtiemp INT NOT NULL,                  -- [NUEVO] el tipo depende del puesto (un chofer siempre es operativo),
-                                            -- por eso va en cargo y el empleado lo hereda; ponerlo también
-                                            -- en empleado permitiría datos contradictorios.
+    codcarg INT PRIMARY KEY AUTO_INCREMENT COMMENT 'Identificador único (PK)',
+    nomcarg VARCHAR(50) NOT NULL UNIQUE COMMENT 'Ej: Vendedor, Almacenero, Chofer, Administrador',
+    descarg VARCHAR(300) NULL COMMENT 'Descripción del cargo y sus funciones',
+    estcarg BIT NOT NULL DEFAULT 1 COMMENT 'Estado del registro: 1 = activo, 0 = inactivo',
+    codtiemp INT NOT NULL COMMENT 'FK a tipoempleado', 
+    usucre VARCHAR(50) NOT NULL DEFAULT 'SYSTEM' COMMENT 'Usuario que creó el registro',
+    feccre DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Fecha y hora de creación (automática)',
+    usuact VARCHAR(50) NULL COMMENT 'Último usuario que modificó el registro (lo llena la aplicación)',
+    fecact DATETIME NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP COMMENT 'Fecha y hora de la última modificación (automática)',
     FOREIGN KEY (codtiemp) REFERENCES tipoempleado(codtiemp)
-)ENGINE=InnoDB;
+)ENGINE=InnoDB COMMENT='Puesto o función del empleado, define si es administrativo u operativo';
 
 CREATE TABLE estadoasistencia(
-    codeasis INT PRIMARY KEY AUTO_INCREMENT,
-    nomeasis VARCHAR(30) NOT NULL UNIQUE,
-    deseasis VARCHAR(300) NULL
-)ENGINE=InnoDB;
+    codeasis INT PRIMARY KEY AUTO_INCREMENT COMMENT 'Identificador único (PK)',
+    nomeasis VARCHAR(30) NOT NULL UNIQUE COMMENT 'Ej: PUNTUAL, TARDANZA, FALTA, JUSTIFICADO',
+    deseasis VARCHAR(300) NULL COMMENT 'Descripción del estado',
+    esteasis BIT NOT NULL DEFAULT 1 COMMENT 'Estado del registro: 1 = activo, 0 = inactivo',
+    usucre VARCHAR(50) NOT NULL DEFAULT 'SYSTEM' COMMENT 'Usuario que creó el registro',
+    feccre DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Fecha y hora de creación (automática)',
+    usuact VARCHAR(50) NULL COMMENT 'Último usuario que modificó el registro (lo llena la aplicación)',
+    fecact DATETIME NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP COMMENT 'Fecha y hora de la última modificación (automática)'
+)ENGINE=InnoDB COMMENT='Estados posibles de la asistencia diaria';
 
--- [NUEVO] Resultado de la evaluación del proveedor (PENDIENTE, APROBADO, RECHAZADO).
--- El enunciado exige proveedores "evaluados y registrados".
 CREATE TABLE estadoevaluacion(
-    codeeva INT PRIMARY KEY AUTO_INCREMENT,
-    nomeeva VARCHAR(30) NOT NULL UNIQUE,
-    esteeva BIT NOT NULL DEFAULT 1
-)ENGINE=InnoDB;
+    codeeva INT PRIMARY KEY AUTO_INCREMENT COMMENT 'Identificador único (PK)',
+    nomeeva VARCHAR(30) NOT NULL UNIQUE COMMENT 'Ej: PENDIENTE, APROBADO, RECHAZADO',
+    deseeva VARCHAR(300) NULL COMMENT 'Descripción del estado de evaluación',
+    esteeva BIT NOT NULL DEFAULT 1 COMMENT 'Estado del registro: 1 = activo, 0 = inactivo',
+    usucre VARCHAR(50) NOT NULL DEFAULT 'SYSTEM' COMMENT 'Usuario que creó el registro',
+    feccre DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Fecha y hora de creación (automática)',
+    usuact VARCHAR(50) NULL COMMENT 'Último usuario que modificó el registro (lo llena la aplicación)',
+    fecact DATETIME NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP COMMENT 'Fecha y hora de la última modificación (automática)'
+)ENGINE=InnoDB COMMENT='Resultado de la evaluación del proveedor';
 
 CREATE TABLE tipotransporte(
-    codttra INT PRIMARY KEY AUTO_INCREMENT,
-    nomttra VARCHAR(40) NOT NULL UNIQUE,
-    estttra BIT NOT NULL DEFAULT 1
-)ENGINE=InnoDB;
+    codttra INT PRIMARY KEY AUTO_INCREMENT COMMENT 'Identificador único (PK)',
+    nomttra VARCHAR(40) NOT NULL UNIQUE COMMENT 'Ej: Furgón, Camión, Camioneta',
+    desttra VARCHAR(300) NULL COMMENT 'Descripción del tipo de transporte',
+    estttra BIT NOT NULL DEFAULT 1 COMMENT 'Estado del registro: 1 = activo, 0 = inactivo',
+    usucre VARCHAR(50) NOT NULL DEFAULT 'SYSTEM' COMMENT 'Usuario que creó el registro',
+    feccre DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Fecha y hora de creación (automática)',
+    usuact VARCHAR(50) NULL COMMENT 'Último usuario que modificó el registro (lo llena la aplicación)',
+    fecact DATETIME NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP COMMENT 'Fecha y hora de la última modificación (automática)'
+)ENGINE=InnoDB COMMENT='Clasifica el tipo de vehículo de reparto';
 
--- [NUEVO] Disponibilidad del vehículo (DISPONIBLE, EN RUTA, MANTENIMIENTO).
--- Distinto de esttra (BIT): esttra dice si la unidad sigue en la flota;
--- este estado dice si se le puede asignar un despacho AHORA.
 CREATE TABLE estadotransporte(
-    codetra INT PRIMARY KEY AUTO_INCREMENT,
-    nometra VARCHAR(30) NOT NULL UNIQUE,
-    estetra BIT NOT NULL DEFAULT 1
-)ENGINE=InnoDB;
+    codetra INT PRIMARY KEY AUTO_INCREMENT COMMENT 'Identificador único (PK)',
+    nometra VARCHAR(30) NOT NULL UNIQUE COMMENT 'Ej: Disponible, En Ruta, Mantenimiento',
+    desetra VARCHAR(300) NULL COMMENT 'Descripción del estado del transporte',
+    estetra BIT NOT NULL DEFAULT 1 COMMENT 'Estado del registro: 1 = activo, 0 = inactivo',
+    usucre VARCHAR(50) NOT NULL DEFAULT 'SYSTEM' COMMENT 'Usuario que creó el registro',
+    feccre DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Fecha y hora de creación (automática)',
+    usuact VARCHAR(50) NULL COMMENT 'Último usuario que modificó el registro (lo llena la aplicación)',
+    fecact DATETIME NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP COMMENT 'Fecha y hora de la última modificación (automática)'
+)ENGINE=InnoDB COMMENT='Disponibilidad de la unidad de transporte';
 
 CREATE TABLE tipoincidencia(
-    codtinc INT PRIMARY KEY AUTO_INCREMENT,
-    nomtinc VARCHAR(50) NOT NULL UNIQUE,
-    esttinc BIT NOT NULL DEFAULT 1
-)ENGINE=InnoDB;
+    codtinc INT PRIMARY KEY AUTO_INCREMENT COMMENT 'Identificador único (PK)',
+    nomtinc VARCHAR(50) NOT NULL UNIQUE COMMENT 'Ej: Retraso, Daño de mercadería, Dirección errada',
+    destinc VARCHAR(300) NULL COMMENT 'Descripción del tipo de incidencia',
+    esttinc BIT NOT NULL DEFAULT 1 COMMENT 'Estado del registro: 1 = activo, 0 = inactivo',
+    usucre VARCHAR(50) NOT NULL DEFAULT 'SYSTEM' COMMENT 'Usuario que creó el registro',
+    feccre DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Fecha y hora de creación (automática)',
+    usuact VARCHAR(50) NULL COMMENT 'Último usuario que modificó el registro (lo llena la aplicación)',
+    fecact DATETIME NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP COMMENT 'Fecha y hora de la última modificación (automática)'
+)ENGINE=InnoDB COMMENT='Clasificación de las incidencias de despacho';
 
 CREATE TABLE metodopago(
-    codmpag INT PRIMARY KEY AUTO_INCREMENT,
-    nommpag VARCHAR(40) NOT NULL UNIQUE,
-    estmpag BIT NOT NULL DEFAULT 1
-)ENGINE=InnoDB;
+    codmpag INT PRIMARY KEY AUTO_INCREMENT COMMENT 'Identificador único (PK)',
+    nommpag VARCHAR(40) NOT NULL UNIQUE COMMENT 'Ej: Efectivo, Tarjeta, Transferencia, Yape/Plin',
+    desmpag VARCHAR(300) NULL COMMENT 'Descripción del método de pago',
+    estmpag BIT NOT NULL DEFAULT 1 COMMENT 'Estado del registro: 1 = activo, 0 = inactivo',
+    usucre VARCHAR(50) NOT NULL DEFAULT 'SYSTEM' COMMENT 'Usuario que creó el registro',
+    feccre DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Fecha y hora de creación (automática)',
+    usuact VARCHAR(50) NULL COMMENT 'Último usuario que modificó el registro (lo llena la aplicación)',
+    fecact DATETIME NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP COMMENT 'Fecha y hora de la última modificación (automática)'
+)ENGINE=InnoDB COMMENT='Método utilizado para el pago';
 
 CREATE TABLE estadopago(
-    codepag INT PRIMARY KEY AUTO_INCREMENT,
-    nomepag VARCHAR(30) NOT NULL UNIQUE,
-    estepag BIT NOT NULL DEFAULT 1
-)ENGINE=InnoDB;
+    codepag INT PRIMARY KEY AUTO_INCREMENT COMMENT 'Identificador único (PK)',
+    nomepag VARCHAR(30) NOT NULL UNIQUE COMMENT 'Ej: Pendiente, Realizado, Anulado',
+    desepag VARCHAR(300) NULL COMMENT 'Descripción del estado de pago',
+    estepag BIT NOT NULL DEFAULT 1 COMMENT 'Estado del registro: 1 = activo, 0 = inactivo',
+    usucre VARCHAR(50) NOT NULL DEFAULT 'SYSTEM' COMMENT 'Usuario que creó el registro',
+    feccre DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Fecha y hora de creación (automática)',
+    usuact VARCHAR(50) NULL COMMENT 'Último usuario que modificó el registro (lo llena la aplicación)',
+    fecact DATETIME NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP COMMENT 'Fecha y hora de la última modificación (automática)'
+)ENGINE=InnoDB COMMENT='Estado de la transacción de pago';
 
 CREATE TABLE tipomovimiento(
-    codtmov INT PRIMARY KEY AUTO_INCREMENT,
-    nomtmov VARCHAR(40) NOT NULL UNIQUE,
-    sigtmov TINYINT NOT NULL,
-    esttmov BIT NOT NULL DEFAULT 1,
+    codtmov INT PRIMARY KEY AUTO_INCREMENT COMMENT 'Identificador único (PK)',
+    nomtmov VARCHAR(40) NOT NULL UNIQUE COMMENT 'Ej: ENTRADA_COMPRA, SALIDA_VENTA, AJUSTE',
+    destmov VARCHAR(300) NULL COMMENT 'Descripción del tipo de movimiento',
+    sigtmov TINYINT NOT NULL COMMENT 'Signo sobre el stock: 1 = suma, -1 = resta',
+    esttmov BIT NOT NULL DEFAULT 1 COMMENT 'Estado del registro: 1 = activo, 0 = inactivo',
+    usucre VARCHAR(50) NOT NULL DEFAULT 'SYSTEM' COMMENT 'Usuario que creó el registro',
+    feccre DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Fecha y hora de creación (automática)',
+    usuact VARCHAR(50) NULL COMMENT 'Último usuario que modificó el registro (lo llena la aplicación)',
+    fecact DATETIME NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP COMMENT 'Fecha y hora de la última modificación (automática)',
     CHECK (sigtmov IN (1,-1))
-)ENGINE=InnoDB;
+)ENGINE=InnoDB COMMENT='Tipo de movimiento de inventario (entrada, salida, ajuste) con su signo';
 
 CREATE TABLE rol(
-    codrol INT PRIMARY KEY AUTO_INCREMENT,
-    nomrol VARCHAR(40) NOT NULL UNIQUE,
-    estrol BIT NOT NULL DEFAULT 1
-)ENGINE=InnoDB;
+    codrol INT PRIMARY KEY AUTO_INCREMENT COMMENT 'Identificador único (PK)',
+    nomrol VARCHAR(40) NOT NULL UNIQUE COMMENT 'Ej: Administrador, Vendedor, Almacenero, Contador',
+    desrol VARCHAR(300) NULL COMMENT 'Descripción del rol y su alcance',
+    estrol BIT NOT NULL DEFAULT 1 COMMENT 'Estado del registro: 1 = activo, 0 = inactivo',
+    usucre VARCHAR(50) NOT NULL DEFAULT 'SYSTEM' COMMENT 'Usuario que creó el registro',
+    feccre DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Fecha y hora de creación (automática)',
+    usuact VARCHAR(50) NULL COMMENT 'Último usuario que modificó el registro (lo llena la aplicación)',
+    fecact DATETIME NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP COMMENT 'Fecha y hora de la última modificación (automática)'
+)ENGINE=InnoDB COMMENT='Roles de acceso al sistema';
 
 CREATE TABLE modulo(
-    codmod INT PRIMARY KEY AUTO_INCREMENT,
-    nommod VARCHAR(50) NOT NULL UNIQUE,
-    rutmod VARCHAR(100) NULL,
-    estmod BIT NOT NULL DEFAULT 1
-)ENGINE=InnoDB;
+    codmod INT PRIMARY KEY AUTO_INCREMENT COMMENT 'Identificador único (PK)',
+    nommod VARCHAR(50) NOT NULL UNIQUE COMMENT 'Ej: Ventas, Compras, Inventario',
+    desmod VARCHAR(300) NULL COMMENT 'Descripción del módulo',
+    rutmod VARCHAR(100) NULL COMMENT 'Ruta o pantalla del módulo',
+    estmod BIT NOT NULL DEFAULT 1 COMMENT 'Estado del registro: 1 = activo, 0 = inactivo',
+    usucre VARCHAR(50) NOT NULL DEFAULT 'SYSTEM' COMMENT 'Usuario que creó el registro',
+    feccre DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Fecha y hora de creación (automática)',
+    usuact VARCHAR(50) NULL COMMENT 'Último usuario que modificó el registro (lo llena la aplicación)',
+    fecact DATETIME NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP COMMENT 'Fecha y hora de la última modificación (automática)'
+)ENGINE=InnoDB COMMENT='Módulos del sistema sobre los que se asignan permisos';
 
 CREATE TABLE capacitacion(
-    codcap INT PRIMARY KEY AUTO_INCREMENT,
-    nomcap VARCHAR(100) NOT NULL,
-    descap TEXT NULL,
-    inicap DATE NOT NULL,
-    fincap DATE NOT NULL,
-    horcap INT NOT NULL,
-    estcap BIT NOT NULL DEFAULT 1,
+    codcap INT PRIMARY KEY AUTO_INCREMENT COMMENT 'Identificador único (PK)',
+    nomcap VARCHAR(100) NOT NULL COMMENT 'Nombre de la capacitación',
+    descap TEXT NULL COMMENT 'Descripción de la capacitación',
+    inicap DATE NOT NULL COMMENT 'Fecha de inicio',
+    fincap DATE NOT NULL COMMENT 'Fecha de fin',
+    horcap INT NOT NULL COMMENT 'Horas lectivas',
+    estcap BIT NOT NULL DEFAULT 1 COMMENT 'Estado del registro: 1 = activo, 0 = inactivo',
+    usucre VARCHAR(50) NOT NULL DEFAULT 'SYSTEM' COMMENT 'Usuario que creó el registro',
+    feccre DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Fecha y hora de creación (automática)',
+    usuact VARCHAR(50) NULL COMMENT 'Último usuario que modificó el registro (lo llena la aplicación)',
+    fecact DATETIME NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP COMMENT 'Fecha y hora de la última modificación (automática)',
     CHECK (fincap >= inicap),
     CHECK (horcap > 0)
-)ENGINE=InnoDB;
+)ENGINE=InnoDB COMMENT='Cursos y capacitaciones disponibles';
 
 CREATE TABLE campana(
-    codcam INT PRIMARY KEY AUTO_INCREMENT,
-    nomcam VARCHAR(100) NOT NULL,
-    descam TEXT NULL,
-    inicam DATE NOT NULL,
-    fincam DATE NOT NULL,
-    estcam BIT NOT NULL DEFAULT 1,
-    usucre VARCHAR(50) NOT NULL DEFAULT 'SYSTEM',                       -- [NUEVO] auditoría
-    feccre DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,                 -- [NUEVO]
-    usuact VARCHAR(50) NULL,                                            -- [NUEVO]
-    fecact DATETIME NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,      -- [NUEVO]
+    codcam INT PRIMARY KEY AUTO_INCREMENT COMMENT 'Identificador único (PK)',
+    nomcam VARCHAR(100) NOT NULL COMMENT 'Nombre de la campaña',
+    descam TEXT NULL COMMENT 'Descripción de la campaña',
+    inicam DATE NOT NULL COMMENT 'Fecha de inicio de la campaña',
+    fincam DATE NOT NULL COMMENT 'Fecha de fin de la campaña',
+    estcam BIT NOT NULL DEFAULT 1 COMMENT 'Estado del registro: 1 = activo, 0 = inactivo',
+    usucre VARCHAR(50) NOT NULL DEFAULT 'SYSTEM' COMMENT 'Usuario que creó el registro',
+    feccre DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Fecha y hora de creación (automática)',
+    usuact VARCHAR(50) NULL COMMENT 'Último usuario que modificó el registro (lo llena la aplicación)',
+    fecact DATETIME NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP COMMENT 'Fecha y hora de la última modificación (automática)',
     CHECK (fincam >= inicam)
-)ENGINE=InnoDB;
+)ENGINE=InnoDB COMMENT='Campañas de marketing';
 
 CREATE TABLE recompensa(
-    codrec INT PRIMARY KEY AUTO_INCREMENT,
-    nomrec VARCHAR(100) NOT NULL UNIQUE,
-    desrec TEXT NULL,
-    punrec INT NOT NULL,
-    estrec BIT NOT NULL DEFAULT 1,
+    codrec INT PRIMARY KEY AUTO_INCREMENT COMMENT 'Identificador único (PK)',
+    nomrec VARCHAR(100) NOT NULL UNIQUE COMMENT 'Nombre de la recompensa',
+    desrec TEXT NULL COMMENT 'Descripción de la recompensa',
+    punrec INT NOT NULL COMMENT 'Puntos necesarios para canjearla',
+    estrec BIT NOT NULL DEFAULT 1 COMMENT 'Estado del registro: 1 = activo, 0 = inactivo',
+    usucre VARCHAR(50) NOT NULL DEFAULT 'SYSTEM' COMMENT 'Usuario que creó el registro',
+    feccre DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Fecha y hora de creación (automática)',
+    usuact VARCHAR(50) NULL COMMENT 'Último usuario que modificó el registro (lo llena la aplicación)',
+    fecact DATETIME NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP COMMENT 'Fecha y hora de la última modificación (automática)',
     CHECK (punrec > 0)
-)ENGINE=InnoDB;
+)ENGINE=InnoDB COMMENT='Premios canjeables con puntos de fidelización';
 
--- [NUEVO] Niveles del programa de puntos (BRONCE, PLATA, ORO).
--- minniv guarda los puntos mínimos de cada nivel: si mañana "Plata" pasa de 500
--- a 600 puntos, se cambia un dato y no el código ni un ENUM.
 CREATE TABLE nivelfidelizacion(
-    codniv INT PRIMARY KEY AUTO_INCREMENT,
-    nomniv VARCHAR(30) NOT NULL UNIQUE,
-    minniv INT NOT NULL UNIQUE,             -- UNIQUE: dos niveles no pueden empezar en el mismo puntaje
-    desniv VARCHAR(300) NULL,               -- beneficios del nivel
-    estniv BIT NOT NULL DEFAULT 1,
+    codniv INT PRIMARY KEY AUTO_INCREMENT COMMENT 'Identificador único (PK)',
+    nomniv VARCHAR(30) NOT NULL UNIQUE COMMENT 'Ej: BRONCE, PLATA, ORO',
+    minniv INT NOT NULL UNIQUE COMMENT 'Puntaje mínimo para alcanzar el nivel', 
+    desniv VARCHAR(300) NULL COMMENT 'Beneficios del nivel', 
+    estniv BIT NOT NULL DEFAULT 1 COMMENT 'Estado del registro: 1 = activo, 0 = inactivo',
+    usucre VARCHAR(50) NOT NULL DEFAULT 'SYSTEM' COMMENT 'Usuario que creó el registro',
+    feccre DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Fecha y hora de creación (automática)',
+    usuact VARCHAR(50) NULL COMMENT 'Último usuario que modificó el registro (lo llena la aplicación)',
+    fecact DATETIME NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP COMMENT 'Fecha y hora de la última modificación (automática)',
     CHECK (minniv >= 0)
-)ENGINE=InnoDB;
+)ENGINE=InnoDB COMMENT='Niveles del programa de puntos (Bronce, Plata, Oro) con su puntaje mínimo';
 
--- --------------------------------------------
--- ALMACENES Y SUCURSALES
--- --------------------------------------------
+CREATE TABLE estadopedido(
+    codeped INT PRIMARY KEY AUTO_INCREMENT COMMENT 'Identificador único (PK)',
+    nomeped VARCHAR(30) NOT NULL UNIQUE COMMENT 'Ej: PENDIENTE, CONFIRMADO, PAGADO, DESPACHADO, ANULADO',
+    deseped VARCHAR(300) NULL COMMENT 'Descripción del estado',
+    esteped BIT NOT NULL DEFAULT 1 COMMENT 'Estado del registro: 1 = activo, 0 = inactivo',
+    usucre VARCHAR(50) NOT NULL DEFAULT 'SYSTEM' COMMENT 'Usuario que creó el registro',
+    feccre DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Fecha y hora de creación (automática)',
+    usuact VARCHAR(50) NULL COMMENT 'Último usuario que modificó el registro (lo llena la aplicación)',
+    fecact DATETIME NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP COMMENT 'Fecha y hora de la última modificación (automática)'
+)ENGINE=InnoDB COMMENT='Etapas de seguimiento de un pedido';
+
+CREATE TABLE estadoenvio(
+    codeenv INT PRIMARY KEY AUTO_INCREMENT COMMENT 'Identificador único (PK)',
+    nomeenv VARCHAR(30) NOT NULL UNIQUE COMMENT 'Ej: PREPARACION, EN RUTA, ENTREGADO, INCIDENCIA, ANULADO',
+    deseenv VARCHAR(300) NULL COMMENT 'Descripción del estado',
+    esteenv BIT NOT NULL DEFAULT 1 COMMENT 'Estado del registro: 1 = activo, 0 = inactivo',
+    usucre VARCHAR(50) NOT NULL DEFAULT 'SYSTEM' COMMENT 'Usuario que creó el registro',
+    feccre DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Fecha y hora de creación (automática)',
+    usuact VARCHAR(50) NULL COMMENT 'Último usuario que modificó el registro (lo llena la aplicación)',
+    fecact DATETIME NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP COMMENT 'Fecha y hora de la última modificación (automática)'
+)ENGINE=InnoDB COMMENT='Estado del envío o despacho';
+
+CREATE TABLE estadoordencompra(
+    codeocom INT PRIMARY KEY AUTO_INCREMENT COMMENT 'Identificador único (PK)',
+    nomeocom VARCHAR(30) NOT NULL UNIQUE COMMENT 'Ej: EMITIDA, APROBADA, RECIBIDA PARCIAL, RECIBIDA, ANULADA',
+    deseocom VARCHAR(300) NULL COMMENT 'Descripción del estado',
+    esteocom BIT NOT NULL DEFAULT 1 COMMENT 'Estado del registro: 1 = activo, 0 = inactivo',
+    usucre VARCHAR(50) NOT NULL DEFAULT 'SYSTEM' COMMENT 'Usuario que creó el registro',
+    feccre DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Fecha y hora de creación (automática)',
+    usuact VARCHAR(50) NULL COMMENT 'Último usuario que modificó el registro (lo llena la aplicación)',
+    fecact DATETIME NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP COMMENT 'Fecha y hora de la última modificación (automática)'
+)ENGINE=InnoDB COMMENT='Estado de la orden de compra a proveedor';
+
+CREATE TABLE estadocapacitacion(
+    codecap INT PRIMARY KEY AUTO_INCREMENT COMMENT 'Identificador único (PK)',
+    nomecap VARCHAR(30) NOT NULL UNIQUE COMMENT 'Ej: INSCRITO, APROBADO, DESAPROBADO, RETIRADO',
+    desecap VARCHAR(300) NULL COMMENT 'Descripción del estado',
+    estecap BIT NOT NULL DEFAULT 1 COMMENT 'Estado del registro: 1 = activo, 0 = inactivo',
+    usucre VARCHAR(50) NOT NULL DEFAULT 'SYSTEM' COMMENT 'Usuario que creó el registro',
+    feccre DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Fecha y hora de creación (automática)',
+    usuact VARCHAR(50) NULL COMMENT 'Último usuario que modificó el registro (lo llena la aplicación)',
+    fecact DATETIME NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP COMMENT 'Fecha y hora de la última modificación (automática)'
+)ENGINE=InnoDB COMMENT='Estado de un empleado dentro de una capacitación';
 
 CREATE TABLE sucursal(
-    codsuc INT PRIMARY KEY AUTO_INCREMENT,
-    nomsuc VARCHAR(100) NOT NULL UNIQUE,
-    dirsuc VARCHAR(200) NOT NULL,
-    telsuc VARCHAR(15) NULL,                -- [NUEVO] teléfono de contacto del punto de venta
-    estsuc BIT NOT NULL DEFAULT 1,
-    coddis INT NOT NULL,
-    codeope INT NOT NULL,
-    usucre VARCHAR(50) NOT NULL DEFAULT 'SYSTEM',                       -- [NUEVO] auditoría
-    feccre DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    usuact VARCHAR(50) NULL,
-    fecact DATETIME NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
+    codsuc INT PRIMARY KEY AUTO_INCREMENT COMMENT 'Identificador único (PK)',
+    nomsuc VARCHAR(100) NOT NULL UNIQUE COMMENT 'Nombre de la sucursal',
+    dirsuc VARCHAR(200) NOT NULL COMMENT 'Dirección de la sucursal',
+    telsuc VARCHAR(15) NULL COMMENT 'Teléfono de contacto de la sucursal',  
+    dessuc VARCHAR(300) NULL COMMENT 'Descripción u observaciones de la sucursal',
+    estsuc BIT NOT NULL DEFAULT 1 COMMENT 'Estado del registro: 1 = activo, 0 = inactivo',
+    coddis INT NOT NULL COMMENT 'FK a distrito',
+    codeope INT NOT NULL COMMENT 'FK a estadooperativo',
+    usucre VARCHAR(50) NOT NULL DEFAULT 'SYSTEM' COMMENT 'Usuario que creó el registro',
+    feccre DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Fecha y hora de creación (automática)',
+    usuact VARCHAR(50) NULL COMMENT 'Último usuario que modificó el registro (lo llena la aplicación)',
+    fecact DATETIME NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP COMMENT 'Fecha y hora de la última modificación (automática)',
     FOREIGN KEY (coddis) REFERENCES distrito(coddis),
     FOREIGN KEY (codeope) REFERENCES estadooperativo(codeope)
-)ENGINE=InnoDB;
-
+)ENGINE=InnoDB COMMENT='Puntos de venta o sucursales de la empresa';
+ 
 CREATE TABLE almacen(
-    codalm INT PRIMARY KEY AUTO_INCREMENT,
-    nomalm VARCHAR(100) NOT NULL UNIQUE,
-    diralm VARCHAR(200) NOT NULL,
-    capalm INT NOT NULL,
-    coddis INT NOT NULL,
-    codtalm INT NOT NULL,
-    codsuc INT NOT NULL,
-    codeope INT NOT NULL,
-    usucre VARCHAR(50) NOT NULL DEFAULT 'SYSTEM',                       -- [NUEVO] auditoría
-    feccre DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    usuact VARCHAR(50) NULL,
-    fecact DATETIME NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
+    codalm INT PRIMARY KEY AUTO_INCREMENT COMMENT 'Identificador único (PK)',
+    nomalm VARCHAR(100) NOT NULL UNIQUE COMMENT 'Nombre del almacén',
+    diralm VARCHAR(200) NOT NULL COMMENT 'Dirección del almacén',
+    capalm INT NOT NULL COMMENT 'Capacidad del almacén',
+    coddis INT NOT NULL COMMENT 'FK a distrito',
+    codtalm INT NOT NULL COMMENT 'FK a tipoalmacen',
+    codsuc INT NOT NULL COMMENT 'FK a sucursal',
+    codeope INT NOT NULL COMMENT 'FK a estadooperativo',
+    desalm VARCHAR(300) NULL COMMENT 'Descripción u observaciones del almacén',
+    estalm BIT NOT NULL DEFAULT 1 COMMENT 'Estado del registro: 1 = activo, 0 = inactivo',
+    usucre VARCHAR(50) NOT NULL DEFAULT 'SYSTEM' COMMENT 'Usuario que creó el registro',
+    feccre DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Fecha y hora de creación (automática)',
+    usuact VARCHAR(50) NULL COMMENT 'Último usuario que modificó el registro (lo llena la aplicación)',
+    fecact DATETIME NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP COMMENT 'Fecha y hora de la última modificación (automática)',
     CHECK (capalm > 0),
     FOREIGN KEY (coddis) REFERENCES distrito(coddis),
     FOREIGN KEY (codtalm) REFERENCES tipoalmacen(codtalm),
     FOREIGN KEY (codsuc) REFERENCES sucursal(codsuc),
     FOREIGN KEY (codeope) REFERENCES estadooperativo(codeope)
-)ENGINE=InnoDB;
-
--- --------------------------------------------
--- PERSONAS
--- --------------------------------------------
-
+)ENGINE=InnoDB COMMENT='Almacenes físicos vinculados a sucursales';
+ 
 CREATE TABLE empleado(
-    codemp INT PRIMARY KEY AUTO_INCREMENT,
-    nomemp VARCHAR(50) NOT NULL,
-    apepemp VARCHAR(40) NOT NULL,
-    apememp VARCHAR(40) NOT NULL,
-    docemp VARCHAR(20) NOT NULL UNIQUE,
-    feccemp DATE NOT NULL,
-    nacemp VARCHAR(30) NOT NULL,
-    diremp VARCHAR(200) NOT NULL,
-    telemp VARCHAR(15) NULL,
-    celemp VARCHAR(15) NOT NULL,
-    coremp VARCHAR(100) NOT NULL UNIQUE,
-    estemp BIT NOT NULL DEFAULT 1,
-    coddis INT NOT NULL,
-    codsex INT NOT NULL,
-    codtipd INT NOT NULL,
-    codcarg INT NOT NULL,                   -- vía cargo se obtiene si es administrativo u operativo
-    codsuc INT NOT NULL,
-    usucre VARCHAR(50) NOT NULL DEFAULT 'SYSTEM',                       -- [NUEVO] auditoría
-    feccre DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    usuact VARCHAR(50) NULL,
-    fecact DATETIME NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
+    codemp INT PRIMARY KEY AUTO_INCREMENT COMMENT 'Identificador único (PK)',
+    nomemp VARCHAR(50) NOT NULL COMMENT 'Nombres del empleado',
+    apepemp VARCHAR(40) NOT NULL COMMENT 'Apellido paterno',
+    apememp VARCHAR(40) NOT NULL COMMENT 'Apellido materno',
+    docemp VARCHAR(20) NOT NULL UNIQUE COMMENT 'Número de documento de identidad',
+    feccemp DATE NOT NULL COMMENT 'Fecha de contratación',
+    nacemp VARCHAR(30) NOT NULL COMMENT 'Nacionalidad',
+    diremp VARCHAR(200) NOT NULL COMMENT 'Dirección domiciliaria',
+    telemp VARCHAR(15) NULL COMMENT 'Teléfono fijo',
+    celemp VARCHAR(15) NOT NULL COMMENT 'Celular',
+    coremp VARCHAR(100) NOT NULL UNIQUE COMMENT 'Correo electrónico',
+    desemp VARCHAR(300) NULL COMMENT 'Descripción u observaciones del empleado',
+    estemp BIT NOT NULL DEFAULT 1 COMMENT 'Estado del registro: 1 = activo, 0 = inactivo',
+    coddis INT NOT NULL COMMENT 'FK a distrito',
+    codsex INT NOT NULL COMMENT 'FK a sexo',
+    codtipd INT NOT NULL COMMENT 'FK a tipodocumento',
+    codcarg INT NOT NULL COMMENT 'FK a cargo',  
+    codsuc INT NOT NULL COMMENT 'FK a sucursal',
+    usucre VARCHAR(50) NOT NULL DEFAULT 'SYSTEM' COMMENT 'Usuario que creó el registro',
+    feccre DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Fecha y hora de creación (automática)',
+    usuact VARCHAR(50) NULL COMMENT 'Último usuario que modificó el registro (lo llena la aplicación)',
+    fecact DATETIME NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP COMMENT 'Fecha y hora de la última modificación (automática)',
     FOREIGN KEY (coddis) REFERENCES distrito(coddis),
     FOREIGN KEY (codsex) REFERENCES sexo(codsex),
     FOREIGN KEY (codtipd) REFERENCES tipodocumento(codtipd),
     FOREIGN KEY (codcarg) REFERENCES cargo(codcarg),
     FOREIGN KEY (codsuc) REFERENCES sucursal(codsuc)
-)ENGINE=InnoDB;
-
+)ENGINE=InnoDB COMMENT='Personal administrativo y operativo';
+ 
 CREATE TABLE cliente(
-    codcli INT PRIMARY KEY AUTO_INCREMENT,
-    nomcli VARCHAR(50) NULL,                -- [CAMBIO] NULL: una empresa no tiene nombre de pila
-    apepcli VARCHAR(40) NULL,               -- [CAMBIO] NULL: una empresa no tiene apellidos
-    apemcli VARCHAR(40) NULL,               -- [CAMBIO] NULL: idem
-    razcli VARCHAR(150) NULL,               -- [NUEVO] razón social, solo para clientes empresa (RUC)
-    doccli VARCHAR(20) NOT NULL UNIQUE,
-    feccli TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    naccli VARCHAR(30) NULL,                -- [CAMBIO] NULL: la nacionalidad no aplica a una empresa
-    dircli VARCHAR(200) NOT NULL,
-    telcli VARCHAR(15) NULL,
-    celcli VARCHAR(15) NULL,
-    corcli VARCHAR(100) NULL UNIQUE,
-    estcli BIT NOT NULL DEFAULT 1,
-    coddis INT NOT NULL,
-    codsex INT NULL,                        -- [CAMBIO] NULL: una empresa no tiene sexo
-    codtipd INT NOT NULL,
-    codtcli INT NOT NULL,
-    usucre VARCHAR(50) NOT NULL DEFAULT 'SYSTEM',                       -- [NUEVO] auditoría
-    feccre DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    usuact VARCHAR(50) NULL,
-    fecact DATETIME NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
-    -- [NUEVO] Obliga a que el cliente sea una cosa u otra:
-    -- empresa (tiene razón social) o persona (tiene nombre y apellido paterno).
-    -- Sin este CHECK, al volver NULL las columnas se podría guardar un cliente sin nombre alguno.
+    codcli INT PRIMARY KEY AUTO_INCREMENT COMMENT 'Identificador único (PK)',
+    nomcli VARCHAR(50) NULL COMMENT 'Nombres (solo clientes persona)',  
+    apepcli VARCHAR(40) NULL COMMENT 'Apellido paterno (solo persona)',  
+    apemcli VARCHAR(40) NULL COMMENT 'Apellido materno (solo persona)',  
+    razcli VARCHAR(150) NULL COMMENT 'Razón social (solo clientes empresa)',  
+    doccli VARCHAR(20) NOT NULL UNIQUE COMMENT 'Número de documento (DNI o RUC)',
+    feccli TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT 'Fecha de registro del cliente',
+    naccli VARCHAR(30) NULL COMMENT 'Nacionalidad (solo persona)',  
+    dircli VARCHAR(200) NOT NULL COMMENT 'Dirección del cliente',
+    telcli VARCHAR(15) NULL COMMENT 'Teléfono fijo',
+    celcli VARCHAR(15) NULL COMMENT 'Celular',
+    corcli VARCHAR(100) NULL UNIQUE COMMENT 'Correo electrónico',
+    descli VARCHAR(300) NULL COMMENT 'Descripción u observaciones del cliente',
+    estcli BIT NOT NULL DEFAULT 1 COMMENT 'Estado del registro: 1 = activo, 0 = inactivo',
+    coddis INT NOT NULL COMMENT 'FK a distrito',
+    codsex INT NULL COMMENT 'FK a sexo',      
+    codtipd INT NOT NULL COMMENT 'FK a tipodocumento',
+    codtcli INT NOT NULL COMMENT 'FK a tipocliente',
+    usucre VARCHAR(50) NOT NULL DEFAULT 'SYSTEM' COMMENT 'Usuario que creó el registro',
+    feccre DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Fecha y hora de creación (automática)',
+    usuact VARCHAR(50) NULL COMMENT 'Último usuario que modificó el registro (lo llena la aplicación)',
+    fecact DATETIME NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP COMMENT 'Fecha y hora de la última modificación (automática)',
     CHECK (razcli IS NOT NULL OR (nomcli IS NOT NULL AND apepcli IS NOT NULL)),
     FOREIGN KEY (coddis) REFERENCES distrito(coddis),
     FOREIGN KEY (codsex) REFERENCES sexo(codsex),
     FOREIGN KEY (codtipd) REFERENCES tipodocumento(codtipd),
     FOREIGN KEY (codtcli) REFERENCES tipocliente(codtcli)
-)ENGINE=InnoDB;
+)ENGINE=InnoDB COMMENT='Clientes registrados, personas o empresas (minoristas/mayoristas)';
 
 CREATE TABLE proveedor(
-    codprov INT PRIMARY KEY AUTO_INCREMENT,
-    nomprov VARCHAR(50) NULL,
-    apepprov VARCHAR(40) NULL,
-    apemprov VARCHAR(40) NULL,
-    razprov VARCHAR(150) NULL,
-    rucprov CHAR(11) NOT NULL UNIQUE,
-    corprov VARCHAR(100) NULL,
-    telprov VARCHAR(15) NULL,
-    celprov VARCHAR(15) NULL,
-    fecprov TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    estprov BIT NOT NULL DEFAULT 1,
-    dirprov VARCHAR(200) NOT NULL,
-    coddis INT NOT NULL,
-    codeeva INT NOT NULL,                   -- [NUEVO] resultado de la evaluación del proveedor
-    feceva DATE NULL,                       -- [NUEVO] cuándo se evaluó (NULL mientras esté pendiente)
-    usucre VARCHAR(50) NOT NULL DEFAULT 'SYSTEM',                       -- [NUEVO] auditoría
-    feccre DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    usuact VARCHAR(50) NULL,
-    fecact DATETIME NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
+    codprov INT PRIMARY KEY AUTO_INCREMENT COMMENT 'Identificador único (PK)',
+    nomprov VARCHAR(50) NULL COMMENT 'Nombres (proveedor persona)',
+    apepprov VARCHAR(40) NULL COMMENT 'Apellido paterno',
+    apemprov VARCHAR(40) NULL COMMENT 'Apellido materno',
+    razprov VARCHAR(150) NULL COMMENT 'Razón social (proveedor empresa)',
+    rucprov CHAR(11) NOT NULL UNIQUE COMMENT 'RUC de 11 dígitos',
+    corprov VARCHAR(100) NULL COMMENT 'Correo electrónico',
+    telprov VARCHAR(15) NULL COMMENT 'Teléfono fijo',
+    celprov VARCHAR(15) NULL COMMENT 'Celular',
+    fecprov TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT 'Fecha de registro del proveedor',
+    desprov VARCHAR(300) NULL COMMENT 'Descripción u observaciones del proveedor',
+    estprov BIT NOT NULL DEFAULT 1 COMMENT 'Estado del registro: 1 = activo, 0 = inactivo',
+    dirprov VARCHAR(200) NOT NULL COMMENT 'Dirección del proveedor',
+    coddis INT NOT NULL COMMENT 'FK a distrito',
+    codeeva INT NOT NULL COMMENT 'FK a estadoevaluacion',  
+    feceva DATE NULL COMMENT 'Fecha de evaluación, NULL mientras esté pendiente', 
+    usucre VARCHAR(50) NOT NULL DEFAULT 'SYSTEM' COMMENT 'Usuario que creó el registro',
+    feccre DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Fecha y hora de creación (automática)',
+    usuact VARCHAR(50) NULL COMMENT 'Último usuario que modificó el registro (lo llena la aplicación)',
+    fecact DATETIME NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP COMMENT 'Fecha y hora de la última modificación (automática)',
     CHECK (CHAR_LENGTH(rucprov) = 11),
     CHECK (razprov IS NOT NULL OR nomprov IS NOT NULL),
     FOREIGN KEY (coddis) REFERENCES distrito(coddis),
     FOREIGN KEY (codeeva) REFERENCES estadoevaluacion(codeeva)
-)ENGINE=InnoDB;
-
--- --------------------------------------------
--- PRODUCTOS E INVENTARIO
--- --------------------------------------------
+)ENGINE=InnoDB COMMENT='Proveedores evaluados y registrados de la empresa';
 
 CREATE TABLE producto(
-    codpro INT PRIMARY KEY AUTO_INCREMENT,
-    skupro VARCHAR(30) NOT NULL UNIQUE,     -- [NUEVO] código SKU del negocio (etiquetas, lector de barras).
-                                            -- codpro es interno; el SKU es el que conoce el personal.
-    nompro VARCHAR(100) NOT NULL,
-    despro TEXT NULL,
-    fecpro TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    prepro DECIMAL(10,2) NOT NULL,          -- precio de venta
-    cospro DECIMAL(10,2) NOT NULL DEFAULT 0,-- [NUEVO] costo referencial de compra: permite calcular
-                                            -- el margen (prepro - cospro) sin buscar la última OC.
-                                            -- El costo real de cada compra sigue en detalleordencompra.
-    estpro BIT NOT NULL DEFAULT 1,
-    codcat INT NOT NULL,
-    codmar INT NOT NULL,
-    codtemp INT NOT NULL,
-    codumed INT NOT NULL,                   -- [NUEVO] unidad en que se vende (UND, KG, LT...)
-    usucre VARCHAR(50) NOT NULL DEFAULT 'SYSTEM',                       -- [NUEVO] auditoría
-    feccre DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    usuact VARCHAR(50) NULL,
-    fecact DATETIME NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
+    codpro INT PRIMARY KEY AUTO_INCREMENT COMMENT 'Identificador único (PK)',
+    skupro VARCHAR(30) NOT NULL UNIQUE COMMENT 'Código SKU del negocio (etiquetas, lector de barras)',  
+    nompro VARCHAR(100) NOT NULL COMMENT 'Nombre del producto',
+    despro TEXT NULL COMMENT 'Descripción del producto',
+    fecpro TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT 'Fecha de registro del producto',
+    prepro DECIMAL(10,2) NOT NULL COMMENT 'Precio de venta',  
+    cospro DECIMAL(10,2) NOT NULL DEFAULT 0 COMMENT 'Costo referencial de compra', 
+    estpro BIT NOT NULL DEFAULT 1 COMMENT 'Estado del registro: 1 = activo, 0 = inactivo',
+    codcat INT NOT NULL COMMENT 'FK a categoriaproducto',
+    codmar INT NOT NULL COMMENT 'FK a marcaproducto',
+    codtemp INT NOT NULL COMMENT 'FK a tipoempaque',
+    codumed INT NOT NULL COMMENT 'FK a unidadmedida', 
+    usucre VARCHAR(50) NOT NULL DEFAULT 'SYSTEM' COMMENT 'Usuario que creó el registro',
+    feccre DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Fecha y hora de creación (automática)',
+    usuact VARCHAR(50) NULL COMMENT 'Último usuario que modificó el registro (lo llena la aplicación)',
+    fecact DATETIME NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP COMMENT 'Fecha y hora de la última modificación (automática)',
     CHECK (prepro >= 0),
-    CHECK (cospro >= 0),                    -- [NUEVO]
+    CHECK (cospro >= 0),            
     FOREIGN KEY (codcat) REFERENCES categoriaproducto(codcat),
     FOREIGN KEY (codmar) REFERENCES marcaproducto(codmar),
     FOREIGN KEY (codtemp) REFERENCES tipoempaque(codtemp),
-    FOREIGN KEY (codumed) REFERENCES unidadmedida(codumed)              -- [NUEVO]
-)ENGINE=InnoDB;
-
+    FOREIGN KEY (codumed) REFERENCES unidadmedida(codumed)       
+)ENGINE=InnoDB COMMENT='Catálogo general de productos';
+ 
 CREATE TABLE stockalmacen(
-    codpro INT NOT NULL,
-    codalm INT NOT NULL,
-    cansalm INT NOT NULL DEFAULT 0,
-    minsalm INT NOT NULL DEFAULT 0,
-    fecsalm TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    codpro INT NOT NULL COMMENT 'FK a producto',
+    codalm INT NOT NULL COMMENT 'FK a almacen',
+    cansalm INT NOT NULL DEFAULT 0 COMMENT 'Cantidad disponible en el almacén',
+    minsalm INT NOT NULL DEFAULT 0 COMMENT 'Stock mínimo antes de reponer',
+    fecsalm TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Fecha de la última actualización del stock',
+    estsalm BIT NOT NULL DEFAULT 1 COMMENT 'Estado del registro: 1 = activo, 0 = inactivo',
+    usucre VARCHAR(50) NOT NULL DEFAULT 'SYSTEM' COMMENT 'Usuario que creó el registro',
+    feccre DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Fecha y hora de creación (automática)',
+    usuact VARCHAR(50) NULL COMMENT 'Último usuario que modificó el registro (lo llena la aplicación)',
+    fecact DATETIME NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP COMMENT 'Fecha y hora de la última modificación (automática)',
     PRIMARY KEY (codpro, codalm),
     CHECK (cansalm >= 0),
     CHECK (minsalm >= 0),
     FOREIGN KEY (codpro) REFERENCES producto(codpro),
     FOREIGN KEY (codalm) REFERENCES almacen(codalm)
-)ENGINE=InnoDB;
-
+)ENGINE=InnoDB COMMENT='Control de stock por producto y almacén';
+ 
+-- --------------------------------------------
+-- TABLAS TRANSACCIONALES
+-- --------------------------------------------
+ 
 CREATE TABLE trasladoalmacen(
-    codtrasl INT PRIMARY KEY AUTO_INCREMENT,
-    fectrasl DATETIME NOT NULL,
-    esttrasl VARCHAR(20) NOT NULL DEFAULT 'PENDIENTE',
-    codalmori INT NOT NULL,
-    codalmdes INT NOT NULL,
-    codemp INT NOT NULL,
-    usucre VARCHAR(50) NOT NULL DEFAULT 'SYSTEM',                       -- [NUEVO] auditoría
-    feccre DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    usuact VARCHAR(50) NULL,
-    fecact DATETIME NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
+    codtrasl INT PRIMARY KEY AUTO_INCREMENT COMMENT 'Identificador único (PK)',
+    fectrasl DATETIME NOT NULL COMMENT 'Fecha del traslado',
+    esttrasl VARCHAR(20) NOT NULL DEFAULT 'PENDIENTE' COMMENT 'Estado: PENDIENTE, EN TRANSITO, RECIBIDO o ANULADO',
+    codalmori INT NOT NULL COMMENT 'Almacén de origen',
+    codalmdes INT NOT NULL COMMENT 'Almacén de destino',
+    codemp INT NOT NULL COMMENT 'FK a empleado',
+    usucre VARCHAR(50) NOT NULL DEFAULT 'SYSTEM' COMMENT 'Usuario que creó el registro',
+    feccre DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Fecha y hora de creación (automática)',
+    usuact VARCHAR(50) NULL COMMENT 'Último usuario que modificó el registro (lo llena la aplicación)',
+    fecact DATETIME NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP COMMENT 'Fecha y hora de la última modificación (automática)',
     CHECK (esttrasl IN ('PENDIENTE','EN TRANSITO','RECIBIDO','ANULADO')),
     CHECK (codalmori <> codalmdes),
     FOREIGN KEY (codalmori) REFERENCES almacen(codalm),
     FOREIGN KEY (codalmdes) REFERENCES almacen(codalm),
     FOREIGN KEY (codemp) REFERENCES empleado(codemp)
-)ENGINE=InnoDB;
-
+)ENGINE=InnoDB COMMENT='Traslados de inventario entre almacenes';
+ 
 CREATE TABLE detalletraslado(
-    coddtrasl INT PRIMARY KEY AUTO_INCREMENT,
-    candtrasl INT NOT NULL,
-    codpro INT NOT NULL,
-    codtrasl INT NOT NULL,
+    coddtrasl INT PRIMARY KEY AUTO_INCREMENT COMMENT 'Identificador único (PK)',
+    candtrasl INT NOT NULL COMMENT 'Cantidad trasladada',
+    codpro INT NOT NULL COMMENT 'FK a producto',
+    codtrasl INT NOT NULL COMMENT 'FK a trasladoalmacen',
+    estdtrasl BIT NOT NULL DEFAULT 1 COMMENT 'Estado del registro: 1 = activo, 0 = inactivo',
+    usucre VARCHAR(50) NOT NULL DEFAULT 'SYSTEM' COMMENT 'Usuario que creó el registro',
+    feccre DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Fecha y hora de creación (automática)',
+    usuact VARCHAR(50) NULL COMMENT 'Último usuario que modificó el registro (lo llena la aplicación)',
+    fecact DATETIME NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP COMMENT 'Fecha y hora de la última modificación (automática)',
     CHECK (candtrasl > 0),
     FOREIGN KEY (codpro) REFERENCES producto(codpro),
     FOREIGN KEY (codtrasl) REFERENCES trasladoalmacen(codtrasl),
     UNIQUE (codtrasl, codpro)
-)ENGINE=InnoDB;
-
+)ENGINE=InnoDB COMMENT='Detalle de productos en un traslado';
+ 
 CREATE TABLE movimientoinventario(
-    codminv INT PRIMARY KEY AUTO_INCREMENT,
-    fecminv TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    canminv INT NOT NULL,
-    refminv VARCHAR(50) NULL,
-    codpro INT NOT NULL,
-    codalm INT NOT NULL,
-    codtmov INT NOT NULL,
-    codemp INT NULL,
+    codminv INT PRIMARY KEY AUTO_INCREMENT COMMENT 'Identificador único (PK)',
+    fecminv TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT 'Fecha y hora del movimiento',
+    canminv INT NOT NULL COMMENT 'Cantidad movida (siempre positiva, el signo lo da el tipo)',
+    refminv VARCHAR(50) NULL COMMENT 'Documento de referencia del movimiento',
+    codpro INT NOT NULL COMMENT 'FK a producto',
+    codalm INT NOT NULL COMMENT 'FK a almacen',
+    codtmov INT NOT NULL COMMENT 'FK a tipomovimiento',
+    codemp INT NULL COMMENT 'FK a empleado',
+    estminv BIT NOT NULL DEFAULT 1 COMMENT 'Estado del registro: 1 = activo, 0 = inactivo',
+    usucre VARCHAR(50) NOT NULL DEFAULT 'SYSTEM' COMMENT 'Usuario que creó el registro',
+    feccre DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Fecha y hora de creación (automática)',
+    usuact VARCHAR(50) NULL COMMENT 'Último usuario que modificó el registro (lo llena la aplicación)',
+    fecact DATETIME NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP COMMENT 'Fecha y hora de la última modificación (automática)',
     CHECK (canminv > 0),
     FOREIGN KEY (codpro) REFERENCES producto(codpro),
     FOREIGN KEY (codalm) REFERENCES almacen(codalm),
     FOREIGN KEY (codtmov) REFERENCES tipomovimiento(codtmov),
     FOREIGN KEY (codemp) REFERENCES empleado(codemp)
-)ENGINE=InnoDB;
-
--- --------------------------------------------
--- MARKETING (requerido antes de ventas por la FK de promoción)
--- --------------------------------------------
-
+)ENGINE=InnoDB COMMENT='Kardex: historial de movimientos de inventario';
+ 
 CREATE TABLE campanasegmento(
-    codcam INT NOT NULL,
-    codtcli INT NOT NULL,
+    codcam INT NOT NULL COMMENT 'FK a campana',
+    codtcli INT NOT NULL COMMENT 'FK a tipocliente',
+    estcseg BIT NOT NULL DEFAULT 1 COMMENT 'Estado del registro: 1 = activo, 0 = inactivo',
+    usucre VARCHAR(50) NOT NULL DEFAULT 'SYSTEM' COMMENT 'Usuario que creó el registro',
+    feccre DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Fecha y hora de creación (automática)',
+    usuact VARCHAR(50) NULL COMMENT 'Último usuario que modificó el registro (lo llena la aplicación)',
+    fecact DATETIME NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP COMMENT 'Fecha y hora de la última modificación (automática)',
     PRIMARY KEY (codcam, codtcli),
     FOREIGN KEY (codcam) REFERENCES campana(codcam),
     FOREIGN KEY (codtcli) REFERENCES tipocliente(codtcli)
-)ENGINE=InnoDB;
-
+)ENGINE=InnoDB COMMENT='Segmentos de cliente a los que se dirige cada campaña';
+ 
 CREATE TABLE promocion(
-    codprom INT PRIMARY KEY AUTO_INCREMENT,
-    nomprom VARCHAR(100) NOT NULL,
-    tipprom VARCHAR(10) NOT NULL,
-    valprom DECIMAL(10,2) NOT NULL,
-    iniprom DATE NOT NULL,
-    finprom DATE NOT NULL,
-    estprom BIT NOT NULL DEFAULT 1,
-    codcam INT NOT NULL,
-    codpro INT NULL,
-    codcat INT NULL,
-    usucre VARCHAR(50) NOT NULL DEFAULT 'SYSTEM',                       -- [NUEVO] auditoría
-    feccre DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    usuact VARCHAR(50) NULL,
-    fecact DATETIME NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
+    codprom INT PRIMARY KEY AUTO_INCREMENT COMMENT 'Identificador único (PK)',
+    nomprom VARCHAR(100) NOT NULL COMMENT 'Nombre de la promoción',
+    desprom VARCHAR(300) NULL COMMENT 'Descripción de la promoción',
+    tipprom VARCHAR(10) NOT NULL COMMENT 'Tipo de descuento: PORCENTAJE o MONTO',
+    valprom DECIMAL(10,2) NOT NULL COMMENT 'Valor del descuento (porcentaje o monto)',
+    iniprom DATE NOT NULL COMMENT 'Inicio de vigencia',
+    finprom DATE NOT NULL COMMENT 'Fin de vigencia',
+    estprom BIT NOT NULL DEFAULT 1 COMMENT 'Estado del registro: 1 = activo, 0 = inactivo',
+    codcam INT NOT NULL COMMENT 'FK a campana',
+    codpro INT NULL COMMENT 'FK a producto',
+    codcat INT NULL COMMENT 'FK a categoriaproducto',
+    usucre VARCHAR(50) NOT NULL DEFAULT 'SYSTEM' COMMENT 'Usuario que creó el registro',
+    feccre DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Fecha y hora de creación (automática)',
+    usuact VARCHAR(50) NULL COMMENT 'Último usuario que modificó el registro (lo llena la aplicación)',
+    fecact DATETIME NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP COMMENT 'Fecha y hora de la última modificación (automática)',
     CHECK (tipprom IN ('PORCENTAJE','MONTO')),
     CHECK (valprom > 0),
     CHECK (tipprom <> 'PORCENTAJE' OR valprom <= 100),
@@ -479,41 +644,42 @@ CREATE TABLE promocion(
     FOREIGN KEY (codcam) REFERENCES campana(codcam),
     FOREIGN KEY (codpro) REFERENCES producto(codpro),
     FOREIGN KEY (codcat) REFERENCES categoriaproducto(codcat)
-)ENGINE=InnoDB;
-
--- --------------------------------------------
--- VENTAS
--- --------------------------------------------
-
+)ENGINE=InnoDB COMMENT='Promociones (porcentaje o monto) asociadas a una campaña';
+ 
 CREATE TABLE pedido(
-    codped INT PRIMARY KEY AUTO_INCREMENT,
-    fecped TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    totped DECIMAL(10,2) NOT NULL DEFAULT 0,
-    estped VARCHAR(20) NOT NULL DEFAULT 'PENDIENTE',
-    codcli INT NOT NULL,
-    codemp INT NOT NULL,
-    codsuc INT NOT NULL,
-    usucre VARCHAR(50) NOT NULL DEFAULT 'SYSTEM',                       -- [NUEVO] auditoría
-    feccre DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    usuact VARCHAR(50) NULL,
-    fecact DATETIME NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
+    codped INT PRIMARY KEY AUTO_INCREMENT COMMENT 'Identificador único (PK)',
+    fecped TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT 'Fecha del pedido',
+    totped DECIMAL(10,2) NOT NULL DEFAULT 0 COMMENT 'Total del pedido',
+    codeped INT NOT NULL DEFAULT 1 COMMENT 'FK a estadopedido',
+    codcli INT NOT NULL COMMENT 'FK a cliente',
+    codemp INT NOT NULL COMMENT 'FK a empleado',
+    codsuc INT NOT NULL COMMENT 'FK a sucursal',
+    usucre VARCHAR(50) NOT NULL DEFAULT 'SYSTEM' COMMENT 'Usuario que creó el registro',
+    feccre DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Fecha y hora de creación (automática)',
+    usuact VARCHAR(50) NULL COMMENT 'Último usuario que modificó el registro (lo llena la aplicación)',
+    fecact DATETIME NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP COMMENT 'Fecha y hora de la última modificación (automática)',
     CHECK (totped >= 0),
-    CHECK (estped IN ('PENDIENTE','CONFIRMADO','PAGADO','DESPACHADO','ANULADO')),
     FOREIGN KEY (codcli) REFERENCES cliente(codcli),
     FOREIGN KEY (codemp) REFERENCES empleado(codemp),
-    FOREIGN KEY (codsuc) REFERENCES sucursal(codsuc)
-)ENGINE=InnoDB;
-
+    FOREIGN KEY (codsuc) REFERENCES sucursal(codsuc),
+    FOREIGN KEY (codeped) REFERENCES estadopedido(codeped)
+)ENGINE=InnoDB COMMENT='Pedidos de venta realizados por clientes';
+ 
 CREATE TABLE detallepedido(
-    coddped INT PRIMARY KEY AUTO_INCREMENT,
-    candped INT NOT NULL,
-    predped DECIMAL(10,2) NOT NULL,
-    desdped DECIMAL(10,2) NOT NULL DEFAULT 0,
-    subdped DECIMAL(10,2) NOT NULL,
-    codped INT NOT NULL,
-    codpro INT NOT NULL,
-    codalm INT NOT NULL,
-    codprom INT NULL,
+    coddped INT PRIMARY KEY AUTO_INCREMENT COMMENT 'Identificador único (PK)',
+    candped INT NOT NULL COMMENT 'Cantidad pedida',
+    predped DECIMAL(10,2) NOT NULL COMMENT 'Precio unitario aplicado',
+    desdped DECIMAL(10,2) NOT NULL DEFAULT 0 COMMENT 'Descuento aplicado',
+    subdped DECIMAL(10,2) NOT NULL COMMENT 'Subtotal de la línea',
+    codped INT NOT NULL COMMENT 'FK a pedido',
+    codpro INT NOT NULL COMMENT 'FK a producto',
+    codalm INT NOT NULL COMMENT 'FK a almacen',
+    codprom INT NULL COMMENT 'FK a promocion',
+    estdped BIT NOT NULL DEFAULT 1 COMMENT 'Estado del registro: 1 = activo, 0 = inactivo',
+    usucre VARCHAR(50) NOT NULL DEFAULT 'SYSTEM' COMMENT 'Usuario que creó el registro',
+    feccre DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Fecha y hora de creación (automática)',
+    usuact VARCHAR(50) NULL COMMENT 'Último usuario que modificó el registro (lo llena la aplicación)',
+    fecact DATETIME NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP COMMENT 'Fecha y hora de la última modificación (automática)',
     CHECK (candped > 0),
     CHECK (predped >= 0),
     CHECK (desdped >= 0),
@@ -522,384 +688,411 @@ CREATE TABLE detallepedido(
     FOREIGN KEY (codpro) REFERENCES producto(codpro),
     FOREIGN KEY (codalm) REFERENCES almacen(codalm),
     FOREIGN KEY (codprom) REFERENCES promocion(codprom)
-)ENGINE=InnoDB;
-
+)ENGINE=InnoDB COMMENT='Detalle de los productos por pedido';
+ 
 CREATE TABLE facturacion(
-    codfac INT PRIMARY KEY AUTO_INCREMENT,
-    serfac VARCHAR(4) NOT NULL,
-    numfac INT NOT NULL,
-    fecfac TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    subfac DECIMAL(10,2) NOT NULL,
-    igvfac DECIMAL(10,2) NOT NULL,
-    totfac DECIMAL(10,2) NOT NULL,
-    estfac VARCHAR(20) NOT NULL DEFAULT 'EMITIDA',
-    codped INT NOT NULL UNIQUE,
-    codtcom INT NOT NULL,
-    usucre VARCHAR(50) NOT NULL DEFAULT 'SYSTEM',                       -- [NUEVO] auditoría
-    feccre DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    usuact VARCHAR(50) NULL,
-    fecact DATETIME NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
+    codfac INT PRIMARY KEY AUTO_INCREMENT COMMENT 'Identificador único (PK)',
+    serfac VARCHAR(4) NOT NULL COMMENT 'Serie del comprobante',
+    numfac INT NOT NULL COMMENT 'Número correlativo',
+    fecfac TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT 'Fecha de emisión',
+    subfac DECIMAL(10,2) NOT NULL COMMENT 'Subtotal sin IGV',
+    igvfac DECIMAL(10,2) NOT NULL COMMENT 'IGV',
+    totfac DECIMAL(10,2) NOT NULL COMMENT 'Total con IGV',
+    estfac VARCHAR(20) NOT NULL DEFAULT 'EMITIDA' COMMENT 'Estado: EMITIDA, PAGADA o ANULADA',
+    codped INT NOT NULL UNIQUE COMMENT 'FK a pedido',
+    codtcom INT NOT NULL COMMENT 'FK a tipocomprobante',
+    usucre VARCHAR(50) NOT NULL DEFAULT 'SYSTEM' COMMENT 'Usuario que creó el registro',
+    feccre DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Fecha y hora de creación (automática)',
+    usuact VARCHAR(50) NULL COMMENT 'Último usuario que modificó el registro (lo llena la aplicación)',
+    fecact DATETIME NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP COMMENT 'Fecha y hora de la última modificación (automática)',
     CHECK (subfac >= 0 AND igvfac >= 0 AND totfac >= 0),
     CHECK (estfac IN ('EMITIDA','PAGADA','ANULADA')),
     UNIQUE (codtcom, serfac, numfac),
     FOREIGN KEY (codped) REFERENCES pedido(codped),
     FOREIGN KEY (codtcom) REFERENCES tipocomprobante(codtcom)
-)ENGINE=InnoDB;
-
--- --------------------------------------------
--- COMPRAS
--- --------------------------------------------
-
+)ENGINE=InnoDB COMMENT='Comprobantes emitidos por ventas';
+ 
 CREATE TABLE ordencompra(
-    codocom INT PRIMARY KEY AUTO_INCREMENT,
-    fecocom TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    estocom VARCHAR(20) NOT NULL DEFAULT 'EMITIDA',
-    fecentocom DATE NOT NULL,
-    conocom VARCHAR(300) NULL,
-    totocom DECIMAL(12,2) NOT NULL DEFAULT 0,
-    codprov INT NOT NULL,
-    codalm INT NOT NULL,
-    codemp INT NOT NULL,
-    usucre VARCHAR(50) NOT NULL DEFAULT 'SYSTEM',                       -- [NUEVO] auditoría
-    feccre DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    usuact VARCHAR(50) NULL,
-    fecact DATETIME NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
+    codocom INT PRIMARY KEY AUTO_INCREMENT COMMENT 'Identificador único (PK)',
+    fecocom TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT 'Fecha de emisión de la orden',
+    codeocom INT NOT NULL DEFAULT 1 COMMENT 'FK a estadoordencompra',
+    fecentocom DATE NOT NULL COMMENT 'Fecha de entrega pactada',
+    conocom VARCHAR(300) NULL COMMENT 'Condiciones de entrega',
+    totocom DECIMAL(12,2) NOT NULL DEFAULT 0 COMMENT 'Total de la orden',
+    codprov INT NOT NULL COMMENT 'FK a proveedor',
+    codalm INT NOT NULL COMMENT 'FK a almacen',
+    codemp INT NOT NULL COMMENT 'FK a empleado',
+    usucre VARCHAR(50) NOT NULL DEFAULT 'SYSTEM' COMMENT 'Usuario que creó el registro',
+    feccre DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Fecha y hora de creación (automática)',
+    usuact VARCHAR(50) NULL COMMENT 'Último usuario que modificó el registro (lo llena la aplicación)',
+    fecact DATETIME NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP COMMENT 'Fecha y hora de la última modificación (automática)',
     CHECK (totocom >= 0),
-    CHECK (estocom IN ('EMITIDA','APROBADA','RECIBIDA PARCIAL','RECIBIDA','ANULADA')),
     FOREIGN KEY (codprov) REFERENCES proveedor(codprov),
     FOREIGN KEY (codalm) REFERENCES almacen(codalm),
-    FOREIGN KEY (codemp) REFERENCES empleado(codemp)
-)ENGINE=InnoDB;
-
+    FOREIGN KEY (codemp) REFERENCES empleado(codemp),
+    FOREIGN KEY (codeocom) REFERENCES estadoordencompra(codeocom)
+)ENGINE=InnoDB COMMENT='Órdenes de compra a proveedores';
+ 
 CREATE TABLE detalleordencompra(
-    coddocom INT PRIMARY KEY AUTO_INCREMENT,
-    candocom INT NOT NULL,
-    cosdocom DECIMAL(10,2) NOT NULL,
-    subdocom DECIMAL(12,2) NOT NULL,        -- [NUEVO] cantidad x costo. Se guarda (y no solo se calcula)
-                                            -- para que el total de la OC no cambie si alguien edita el costo después.
-    codocom INT NOT NULL,
-    codpro INT NOT NULL,
+    coddocom INT PRIMARY KEY AUTO_INCREMENT COMMENT 'Identificador único (PK)',
+    candocom INT NOT NULL COMMENT 'Cantidad ordenada',
+    cosdocom DECIMAL(10,2) NOT NULL COMMENT 'Costo unitario acordado',
+    subdocom DECIMAL(12,2) NOT NULL COMMENT 'Cantidad x costo, guardado para que no cambie si se edita el costo', 
+    codocom INT NOT NULL COMMENT 'FK a ordencompra',
+    codpro INT NOT NULL COMMENT 'FK a producto',
+    estdocom BIT NOT NULL DEFAULT 1 COMMENT 'Estado del registro: 1 = activo, 0 = inactivo',
+    usucre VARCHAR(50) NOT NULL DEFAULT 'SYSTEM' COMMENT 'Usuario que creó el registro',
+    feccre DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Fecha y hora de creación (automática)',
+    usuact VARCHAR(50) NULL COMMENT 'Último usuario que modificó el registro (lo llena la aplicación)',
+    fecact DATETIME NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP COMMENT 'Fecha y hora de la última modificación (automática)',
     CHECK (candocom > 0),
     CHECK (cosdocom >= 0),
-    CHECK (subdocom >= 0),                  -- [NUEVO]
+    CHECK (subdocom >= 0),         
     FOREIGN KEY (codocom) REFERENCES ordencompra(codocom),
     FOREIGN KEY (codpro) REFERENCES producto(codpro),
     UNIQUE (codocom, codpro)
-)ENGINE=InnoDB;
-
+)ENGINE=InnoDB COMMENT='Detalle de productos en una orden de compra';
+ 
 CREATE TABLE guiaingreso(
-    codgin INT PRIMARY KEY AUTO_INCREMENT,
-    fecgin TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    estgin VARCHAR(20) NOT NULL DEFAULT 'REGISTRADA',
-    codocom INT NOT NULL,
-    codalm INT NOT NULL,
-    codemp INT NOT NULL,
-    usucre VARCHAR(50) NOT NULL DEFAULT 'SYSTEM',                       -- [NUEVO] auditoría
-    feccre DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    usuact VARCHAR(50) NULL,
-    fecact DATETIME NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
+    codgin INT PRIMARY KEY AUTO_INCREMENT COMMENT 'Identificador único (PK)',
+    fecgin TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT 'Fecha de ingreso al almacén',
+    estgin VARCHAR(20) NOT NULL DEFAULT 'REGISTRADA' COMMENT 'Estado: REGISTRADA, CONFORME, OBSERVADA o ANULADA',
+    codocom INT NOT NULL COMMENT 'FK a ordencompra',
+    codalm INT NOT NULL COMMENT 'FK a almacen',
+    codemp INT NOT NULL COMMENT 'FK a empleado',
+    usucre VARCHAR(50) NOT NULL DEFAULT 'SYSTEM' COMMENT 'Usuario que creó el registro',
+    feccre DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Fecha y hora de creación (automática)',
+    usuact VARCHAR(50) NULL COMMENT 'Último usuario que modificó el registro (lo llena la aplicación)',
+    fecact DATETIME NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP COMMENT 'Fecha y hora de la última modificación (automática)',
     CHECK (estgin IN ('REGISTRADA','CONFORME','OBSERVADA','ANULADA')),
     FOREIGN KEY (codocom) REFERENCES ordencompra(codocom),
     FOREIGN KEY (codalm) REFERENCES almacen(codalm),
     FOREIGN KEY (codemp) REFERENCES empleado(codemp)
-)ENGINE=InnoDB;
-
+)ENGINE=InnoDB COMMENT='Guías de ingreso de mercadería a almacén contra una orden de compra';
+ 
 CREATE TABLE detalleguiaingreso(
-    coddgin INT PRIMARY KEY AUTO_INCREMENT,
-    candgin INT NOT NULL,
-    codpro INT NOT NULL,
-    codgin INT NOT NULL,
+    coddgin INT PRIMARY KEY AUTO_INCREMENT COMMENT 'Identificador único (PK)',
+    candgin INT NOT NULL COMMENT 'Cantidad recibida',
+    codpro INT NOT NULL COMMENT 'FK a producto',
+    codgin INT NOT NULL COMMENT 'FK a guiaingreso',
+    estdgin BIT NOT NULL DEFAULT 1 COMMENT 'Estado del registro: 1 = activo, 0 = inactivo',
+    usucre VARCHAR(50) NOT NULL DEFAULT 'SYSTEM' COMMENT 'Usuario que creó el registro',
+    feccre DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Fecha y hora de creación (automática)',
+    usuact VARCHAR(50) NULL COMMENT 'Último usuario que modificó el registro (lo llena la aplicación)',
+    fecact DATETIME NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP COMMENT 'Fecha y hora de la última modificación (automática)',
     CHECK (candgin > 0),
     FOREIGN KEY (codpro) REFERENCES producto(codpro),
     FOREIGN KEY (codgin) REFERENCES guiaingreso(codgin),
     UNIQUE (codgin, codpro)
-)ENGINE=InnoDB;
-
+)ENGINE=InnoDB COMMENT='Detalle de productos recibidos en una guía de ingreso';
+ 
 CREATE TABLE facturaproveedor(
-    codfprov INT PRIMARY KEY AUTO_INCREMENT,
-    numfprov VARCHAR(20) NOT NULL,
-    fecfprov DATE NOT NULL,
-    venfprov DATE NOT NULL,
-    totfprov DECIMAL(12,2) NOT NULL,
-    estfprov VARCHAR(20) NOT NULL DEFAULT 'PENDIENTE',
-    codocom INT NOT NULL,
-    codprov INT NOT NULL,
-    usucre VARCHAR(50) NOT NULL DEFAULT 'SYSTEM',                       -- [NUEVO] auditoría
-    feccre DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    usuact VARCHAR(50) NULL,
-    fecact DATETIME NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
+    codfprov INT PRIMARY KEY AUTO_INCREMENT COMMENT 'Identificador único (PK)',
+    numfprov VARCHAR(20) NOT NULL COMMENT 'Número de la factura del proveedor',
+    fecfprov DATE NOT NULL COMMENT 'Fecha de emisión',
+    venfprov DATE NOT NULL COMMENT 'Fecha de vencimiento',
+    totfprov DECIMAL(12,2) NOT NULL COMMENT 'Total de la factura',
+    estfprov VARCHAR(20) NOT NULL DEFAULT 'PENDIENTE' COMMENT 'Estado: PENDIENTE, PAGADA PARCIAL, PAGADA o ANULADA',
+    codocom INT NOT NULL COMMENT 'FK a ordencompra',
+    codprov INT NOT NULL COMMENT 'FK a proveedor',
+    usucre VARCHAR(50) NOT NULL DEFAULT 'SYSTEM' COMMENT 'Usuario que creó el registro',
+    feccre DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Fecha y hora de creación (automática)',
+    usuact VARCHAR(50) NULL COMMENT 'Último usuario que modificó el registro (lo llena la aplicación)',
+    fecact DATETIME NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP COMMENT 'Fecha y hora de la última modificación (automática)',
     CHECK (totfprov >= 0),
     CHECK (venfprov >= fecfprov),
     CHECK (estfprov IN ('PENDIENTE','PAGADA PARCIAL','PAGADA','ANULADA')),
     UNIQUE (codprov, numfprov),
     FOREIGN KEY (codocom) REFERENCES ordencompra(codocom),
     FOREIGN KEY (codprov) REFERENCES proveedor(codprov)
-)ENGINE=InnoDB;
-
--- --------------------------------------------
--- DESPACHO
--- --------------------------------------------
-
+)ENGINE=InnoDB COMMENT='Facturas recibidas de proveedores';
+ 
 CREATE TABLE transporte(
-    codtra INT PRIMARY KEY AUTO_INCREMENT,
-    platra VARCHAR(10) NOT NULL UNIQUE,
-    captra DECIMAL(10,2) NOT NULL,
-    esttra BIT NOT NULL DEFAULT 1,          -- sigue en la flota (1) o fue dado de baja (0)
-    codttra INT NOT NULL,
-    codetra INT NOT NULL,                   -- [NUEVO] disponibilidad actual (DISPONIBLE / EN RUTA / MANTENIMIENTO)
+    codtra INT PRIMARY KEY AUTO_INCREMENT COMMENT 'Identificador único (PK)',
+    platra VARCHAR(10) NOT NULL UNIQUE COMMENT 'Placa del vehículo',
+    captra DECIMAL(10,2) NOT NULL COMMENT 'Capacidad de carga',
+    destra VARCHAR(300) NULL COMMENT 'Descripción u observaciones del vehículo',
+    esttra BIT NOT NULL DEFAULT 1 COMMENT 'Estado del registro: 1 = activo, 0 = inactivo',  
+    codttra INT NOT NULL COMMENT 'FK a tipotransporte',
+    codetra INT NOT NULL COMMENT 'FK a estadotransporte', 
+    usucre VARCHAR(50) NOT NULL DEFAULT 'SYSTEM' COMMENT 'Usuario que creó el registro',
+    feccre DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Fecha y hora de creación (automática)',
+    usuact VARCHAR(50) NULL COMMENT 'Último usuario que modificó el registro (lo llena la aplicación)',
+    fecact DATETIME NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP COMMENT 'Fecha y hora de la última modificación (automática)',
     CHECK (captra > 0),
     FOREIGN KEY (codttra) REFERENCES tipotransporte(codttra),
-    FOREIGN KEY (codetra) REFERENCES estadotransporte(codetra)          -- [NUEVO]
-)ENGINE=InnoDB;
-
+    FOREIGN KEY (codetra) REFERENCES estadotransporte(codetra)     
+)ENGINE=InnoDB COMMENT='Vehículos de transporte y despacho';
+ 
 CREATE TABLE despacho(
-    coddes INT PRIMARY KEY AUTO_INCREMENT,
-    numdes VARCHAR(20) NOT NULL UNIQUE,
-    fecdes DATETIME NOT NULL,
-    dirdes VARCHAR(200) NOT NULL,
-    estdes VARCHAR(20) NOT NULL DEFAULT 'PREPARACION',
-    codfac INT NOT NULL,
-    codemp INT NOT NULL,
-    codtra INT NOT NULL,
-    coddis INT NOT NULL,
-    usucre VARCHAR(50) NOT NULL DEFAULT 'SYSTEM',                       -- [NUEVO] auditoría
-    feccre DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    usuact VARCHAR(50) NULL,
-    fecact DATETIME NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
-    CHECK (estdes IN ('PREPARACION','EN RUTA','ENTREGADO','INCIDENCIA','ANULADO')),
+    coddes INT PRIMARY KEY AUTO_INCREMENT COMMENT 'Identificador único (PK)',
+    numdes VARCHAR(20) NOT NULL UNIQUE COMMENT 'Número del despacho',
+    fecdes DATETIME NOT NULL COMMENT 'Fecha programada del despacho',
+    dirdes VARCHAR(200) NOT NULL COMMENT 'Dirección de entrega',
+    codeenv INT NOT NULL DEFAULT 1 COMMENT 'FK a estadoenvio',
+    codfac INT NOT NULL COMMENT 'FK a facturacion',
+    codemp INT NOT NULL COMMENT 'FK a empleado',
+    codtra INT NOT NULL COMMENT 'FK a transporte',
+    coddis INT NOT NULL COMMENT 'FK a distrito',
+    usucre VARCHAR(50) NOT NULL DEFAULT 'SYSTEM' COMMENT 'Usuario que creó el registro',
+    feccre DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Fecha y hora de creación (automática)',
+    usuact VARCHAR(50) NULL COMMENT 'Último usuario que modificó el registro (lo llena la aplicación)',
+    fecact DATETIME NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP COMMENT 'Fecha y hora de la última modificación (automática)',
     FOREIGN KEY (codfac) REFERENCES facturacion(codfac),
     FOREIGN KEY (codemp) REFERENCES empleado(codemp),
     FOREIGN KEY (codtra) REFERENCES transporte(codtra),
-    FOREIGN KEY (coddis) REFERENCES distrito(coddis)
-)ENGINE=InnoDB;
-
+    FOREIGN KEY (coddis) REFERENCES distrito(coddis),
+    FOREIGN KEY (codeenv) REFERENCES estadoenvio(codeenv)
+)ENGINE=InnoDB COMMENT='Gestión de despachos de comprobantes de venta';
+ 
 CREATE TABLE detalledespacho(
-    coddetdes INT PRIMARY KEY AUTO_INCREMENT,
-    candetdes INT NOT NULL,
-    codpro INT NOT NULL,
-    codalm INT NOT NULL,
-    coddes INT NOT NULL,
+    coddetdes INT PRIMARY KEY AUTO_INCREMENT COMMENT 'Identificador único (PK)',
+    candetdes INT NOT NULL COMMENT 'Cantidad despachada',
+    codpro INT NOT NULL COMMENT 'FK a producto',
+    codalm INT NOT NULL COMMENT 'FK a almacen',
+    coddes INT NOT NULL COMMENT 'FK a despacho',
+    estdetdes BIT NOT NULL DEFAULT 1 COMMENT 'Estado del registro: 1 = activo, 0 = inactivo',
+    usucre VARCHAR(50) NOT NULL DEFAULT 'SYSTEM' COMMENT 'Usuario que creó el registro',
+    feccre DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Fecha y hora de creación (automática)',
+    usuact VARCHAR(50) NULL COMMENT 'Último usuario que modificó el registro (lo llena la aplicación)',
+    fecact DATETIME NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP COMMENT 'Fecha y hora de la última modificación (automática)',
     CHECK (candetdes > 0),
     FOREIGN KEY (codpro) REFERENCES producto(codpro),
     FOREIGN KEY (codalm) REFERENCES almacen(codalm),
     FOREIGN KEY (coddes) REFERENCES despacho(coddes)
-)ENGINE=InnoDB;
-
+)ENGINE=InnoDB COMMENT='Detalle de productos por despacho';
+ 
 CREATE TABLE incidenciadespacho(
-    codinc INT PRIMARY KEY AUTO_INCREMENT,
-    fecinc TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    desinc TEXT NOT NULL,
-    accinc TEXT NULL,
-    estinc VARCHAR(20) NOT NULL DEFAULT 'ABIERTA',
-    coddes INT NOT NULL,
-    codtinc INT NOT NULL,
+    codinc INT PRIMARY KEY AUTO_INCREMENT COMMENT 'Identificador único (PK)',
+    fecinc TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT 'Fecha de la incidencia',
+    desinc TEXT NOT NULL COMMENT 'Descripción de lo ocurrido',
+    accinc TEXT NULL COMMENT 'Acción tomada',
+    estinc VARCHAR(20) NOT NULL DEFAULT 'ABIERTA' COMMENT 'Estado: ABIERTA, EN PROCESO o RESUELTA',
+    coddes INT NOT NULL COMMENT 'FK a despacho',
+    codtinc INT NOT NULL COMMENT 'FK a tipoincidencia',
+    usucre VARCHAR(50) NOT NULL DEFAULT 'SYSTEM' COMMENT 'Usuario que creó el registro',
+    feccre DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Fecha y hora de creación (automática)',
+    usuact VARCHAR(50) NULL COMMENT 'Último usuario que modificó el registro (lo llena la aplicación)',
+    fecact DATETIME NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP COMMENT 'Fecha y hora de la última modificación (automática)',
     CHECK (estinc IN ('ABIERTA','EN PROCESO','RESUELTA')),
     FOREIGN KEY (coddes) REFERENCES despacho(coddes),
     FOREIGN KEY (codtinc) REFERENCES tipoincidencia(codtinc)
-)ENGINE=InnoDB;
-
--- --------------------------------------------
--- PERSONAL
--- --------------------------------------------
-
+)ENGINE=InnoDB COMMENT='Incidencias ocurridas durante un despacho';
+ 
 CREATE TABLE asistencia(
-    codasi INT PRIMARY KEY AUTO_INCREMENT,
-    fecasi DATE NOT NULL,
-    entasi TIME NULL,
-    salasi TIME NULL,
-    codeasis INT NOT NULL,
-    codemp INT NOT NULL,
+    codasi INT PRIMARY KEY AUTO_INCREMENT COMMENT 'Identificador único (PK)',
+    fecasi DATE NOT NULL COMMENT 'Fecha de asistencia',
+    entasi TIME NULL COMMENT 'Hora de entrada',
+    salasi TIME NULL COMMENT 'Hora de salida',
+    codeasis INT NOT NULL COMMENT 'FK a estadoasistencia',
+    codemp INT NOT NULL COMMENT 'FK a empleado',
+    usucre VARCHAR(50) NOT NULL DEFAULT 'SYSTEM' COMMENT 'Usuario que creó el registro',
+    feccre DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Fecha y hora de creación (automática)',
+    usuact VARCHAR(50) NULL COMMENT 'Último usuario que modificó el registro (lo llena la aplicación)',
+    fecact DATETIME NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP COMMENT 'Fecha y hora de la última modificación (automática)',
     CHECK (salasi IS NULL OR entasi IS NULL OR salasi > entasi),
     FOREIGN KEY (codeasis) REFERENCES estadoasistencia(codeasis),
     FOREIGN KEY (codemp) REFERENCES empleado(codemp),
     UNIQUE (codemp, fecasi)
-)ENGINE=InnoDB;
-
+)ENGINE=InnoDB COMMENT='Control de asistencia diaria de empleados';
+ 
 CREATE TABLE empleadocapacitacion(
-    codemp INT NOT NULL,
-    codcap INT NOT NULL,
-    notecap DECIMAL(5,2) NULL,
-    estecap VARCHAR(20) NOT NULL DEFAULT 'INSCRITO',
-    feccomp DATE NULL,                      -- [NUEVO] cuándo terminó ESTE empleado (puede diferir del fin del curso);
-                                            -- NULL mientras siga inscrito.
+    codemp INT NOT NULL COMMENT 'FK a empleado',
+    codcap INT NOT NULL COMMENT 'FK a capacitacion',
+    notecap DECIMAL(5,2) NULL COMMENT 'Nota obtenida (0 a 20)',
+    codecap INT NOT NULL DEFAULT 1 COMMENT 'FK a estadocapacitacion',
+    feccomp DATE NULL COMMENT 'Fecha en que este empleado terminó, NULL mientras siga inscrito',  
+    usucre VARCHAR(50) NOT NULL DEFAULT 'SYSTEM' COMMENT 'Usuario que creó el registro',
+    feccre DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Fecha y hora de creación (automática)',
+    usuact VARCHAR(50) NULL COMMENT 'Último usuario que modificó el registro (lo llena la aplicación)',
+    fecact DATETIME NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP COMMENT 'Fecha y hora de la última modificación (automática)',
     PRIMARY KEY (codemp, codcap),
     CHECK (notecap IS NULL OR (notecap >= 0 AND notecap <= 20)),
-    CHECK (estecap IN ('INSCRITO','APROBADO','DESAPROBADO','RETIRADO')),
     FOREIGN KEY (codemp) REFERENCES empleado(codemp),
-    FOREIGN KEY (codcap) REFERENCES capacitacion(codcap)
-)ENGINE=InnoDB;
-
--- --------------------------------------------
--- PAGOS
--- --------------------------------------------
-
+    FOREIGN KEY (codcap) REFERENCES capacitacion(codcap),
+    FOREIGN KEY (codecap) REFERENCES estadocapacitacion(codecap)
+)ENGINE=InnoDB COMMENT='Relación de empleados capacitados, con nota y estado';
+ 
 CREATE TABLE pagocliente(
-    codpcli INT PRIMARY KEY AUTO_INCREMENT,
-    fecpcli TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    monpcli DECIMAL(10,2) NOT NULL,
-    numpcli VARCHAR(50) NULL,
-    codfac INT NOT NULL,
-    codmpag INT NOT NULL,
-    codepag INT NOT NULL,
-    usucre VARCHAR(50) NOT NULL DEFAULT 'SYSTEM',                       -- [NUEVO] auditoría
-    feccre DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    usuact VARCHAR(50) NULL,
-    fecact DATETIME NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
+    codpcli INT PRIMARY KEY AUTO_INCREMENT COMMENT 'Identificador único (PK)',
+    fecpcli TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT 'Fecha del pago',
+    monpcli DECIMAL(10,2) NOT NULL COMMENT 'Monto pagado',
+    numpcli VARCHAR(50) NULL COMMENT 'Número de operación',
+    codfac INT NOT NULL COMMENT 'FK a facturacion',
+    codmpag INT NOT NULL COMMENT 'FK a metodopago',
+    codepag INT NOT NULL COMMENT 'FK a estadopago',
+    usucre VARCHAR(50) NOT NULL DEFAULT 'SYSTEM' COMMENT 'Usuario que creó el registro',
+    feccre DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Fecha y hora de creación (automática)',
+    usuact VARCHAR(50) NULL COMMENT 'Último usuario que modificó el registro (lo llena la aplicación)',
+    fecact DATETIME NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP COMMENT 'Fecha y hora de la última modificación (automática)',
     CHECK (monpcli > 0),
     FOREIGN KEY (codfac) REFERENCES facturacion(codfac),
     FOREIGN KEY (codmpag) REFERENCES metodopago(codmpag),
     FOREIGN KEY (codepag) REFERENCES estadopago(codepag)
-)ENGINE=InnoDB;
-
+)ENGINE=InnoDB COMMENT='Pagos recibidos de clientes contra una factura de venta';
+ 
 CREATE TABLE pagoproveedor(
-    codpprov INT PRIMARY KEY AUTO_INCREMENT,
-    fecpprov TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    monpprov DECIMAL(12,2) NOT NULL,
-    numpprov VARCHAR(50) NULL,
-    codfprov INT NOT NULL,
-    codmpag INT NOT NULL,
-    codepag INT NOT NULL,
-    usucre VARCHAR(50) NOT NULL DEFAULT 'SYSTEM',                       -- [NUEVO] auditoría
-    feccre DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    usuact VARCHAR(50) NULL,
-    fecact DATETIME NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
+    codpprov INT PRIMARY KEY AUTO_INCREMENT COMMENT 'Identificador único (PK)',
+    fecpprov TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT 'Fecha del pago',
+    monpprov DECIMAL(12,2) NOT NULL COMMENT 'Monto pagado',
+    numpprov VARCHAR(50) NULL COMMENT 'Número de operación',
+    codfprov INT NOT NULL COMMENT 'FK a facturaproveedor',
+    codmpag INT NOT NULL COMMENT 'FK a metodopago',
+    codepag INT NOT NULL COMMENT 'FK a estadopago',
+    usucre VARCHAR(50) NOT NULL DEFAULT 'SYSTEM' COMMENT 'Usuario que creó el registro',
+    feccre DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Fecha y hora de creación (automática)',
+    usuact VARCHAR(50) NULL COMMENT 'Último usuario que modificó el registro (lo llena la aplicación)',
+    fecact DATETIME NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP COMMENT 'Fecha y hora de la última modificación (automática)',
     CHECK (monpprov > 0),
     FOREIGN KEY (codfprov) REFERENCES facturaproveedor(codfprov),
     FOREIGN KEY (codmpag) REFERENCES metodopago(codmpag),
     FOREIGN KEY (codepag) REFERENCES estadopago(codepag)
-)ENGINE=InnoDB;
-
--- --------------------------------------------
--- SEGURIDAD Y AUDITORÍA
--- --------------------------------------------
-
+)ENGINE=InnoDB COMMENT='Pagos realizados a proveedores contra su factura';
+ 
 CREATE TABLE usuario(
-    codusu INT PRIMARY KEY AUTO_INCREMENT,
-    nomusu VARCHAR(50) NOT NULL UNIQUE,
-    passusu VARCHAR(255) NOT NULL,          -- guardar HASH, nunca texto plano
-    estusu VARCHAR(10) NOT NULL DEFAULT 'ACTIVO', -- [CAMBIO] antes BIT: un BIT solo admite 2 valores
-                                                  -- y ahora hay 3 (ACTIVO, BLOQUEADO, INACTIVO).
-    intusu TINYINT NOT NULL DEFAULT 0,      -- [NUEVO] intentos fallidos seguidos; la app bloquea al llegar al límite
-    ultusu DATETIME NULL,                   -- [NUEVO] último acceso: detecta cuentas abandonadas (NULL = nunca ingresó)
-    codemp INT NOT NULL UNIQUE,
-    codrol INT NOT NULL,
-    usucre VARCHAR(50) NOT NULL DEFAULT 'SYSTEM',                       -- [NUEVO] auditoría (reemplaza a creusu)
-    feccre DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    usuact VARCHAR(50) NULL,
-    fecact DATETIME NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
-    CHECK (estusu IN ('ACTIVO','BLOQUEADO','INACTIVO')),               -- [NUEVO]
-    CHECK (intusu >= 0),                                               -- [NUEVO]
+    codusu INT PRIMARY KEY AUTO_INCREMENT COMMENT 'Identificador único (PK)',
+    nomusu VARCHAR(50) NOT NULL UNIQUE COMMENT 'Nombre de usuario de acceso',
+    passusu VARCHAR(255) NOT NULL COMMENT 'Hash de la contraseña (nunca texto plano)', 
+    estusu VARCHAR(10) NOT NULL DEFAULT 'ACTIVO' COMMENT 'Estado: ACTIVO, BLOQUEADO o INACTIVO',  
+    intusu TINYINT NOT NULL DEFAULT 0 COMMENT 'Intentos fallidos seguidos, la app bloquea al llegar al límite',  
+    ultusu DATETIME NULL COMMENT 'Último acceso, NULL = nunca ingresó', 
+    codemp INT NOT NULL UNIQUE COMMENT 'FK a empleado',
+    codrol INT NOT NULL COMMENT 'FK a rol',
+    usucre VARCHAR(50) NOT NULL DEFAULT 'SYSTEM' COMMENT 'Usuario que creó el registro',
+    feccre DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Fecha y hora de creación (automática)',
+    usuact VARCHAR(50) NULL COMMENT 'Último usuario que modificó el registro (lo llena la aplicación)',
+    fecact DATETIME NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP COMMENT 'Fecha y hora de la última modificación (automática)',
+    CHECK (estusu IN ('ACTIVO','BLOQUEADO','INACTIVO')),            
+    CHECK (intusu >= 0),                                           
     FOREIGN KEY (codemp) REFERENCES empleado(codemp),
     FOREIGN KEY (codrol) REFERENCES rol(codrol)
-)ENGINE=InnoDB;
-
+)ENGINE=InnoDB COMMENT='Credenciales de acceso de usuarios';
+ 
 CREATE TABLE rolpermiso(
-    codrol INT NOT NULL,
-    codmod INT NOT NULL,
-    lecper BIT NOT NULL DEFAULT 1,
-    escper BIT NOT NULL DEFAULT 0,
-    eliper BIT NOT NULL DEFAULT 0,
+    codrol INT NOT NULL COMMENT 'FK a rol',
+    codmod INT NOT NULL COMMENT 'FK a modulo',
+    lecper BIT NOT NULL DEFAULT 1 COMMENT 'Permiso de lectura',
+    escper BIT NOT NULL DEFAULT 0 COMMENT 'Permiso de escritura',
+    eliper BIT NOT NULL DEFAULT 0 COMMENT 'Permiso de eliminación',
+    estper BIT NOT NULL DEFAULT 1 COMMENT 'Estado del registro: 1 = activo, 0 = inactivo',
+    usucre VARCHAR(50) NOT NULL DEFAULT 'SYSTEM' COMMENT 'Usuario que creó el registro',
+    feccre DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Fecha y hora de creación (automática)',
+    usuact VARCHAR(50) NULL COMMENT 'Último usuario que modificó el registro (lo llena la aplicación)',
+    fecact DATETIME NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP COMMENT 'Fecha y hora de la última modificación (automática)',
     PRIMARY KEY (codrol, codmod),
     FOREIGN KEY (codrol) REFERENCES rol(codrol),
     FOREIGN KEY (codmod) REFERENCES modulo(codmod)
-)ENGINE=InnoDB;
-
+)ENGINE=InnoDB COMMENT='Permisos de lectura, escritura y eliminación por rol y módulo';
+ 
 CREATE TABLE auditorialog(
-    codlog INT PRIMARY KEY AUTO_INCREMENT,
-    feclog TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    acclog VARCHAR(20) NOT NULL,
-    tablog VARCHAR(50) NULL,
-    reglog VARCHAR(50) NULL,
-    iplog VARCHAR(45) NULL,
-    codusu INT NOT NULL,
-    codmod INT NULL,                        -- [NUEVO] módulo donde ocurrió la acción, para filtrar
-                                            -- "¿qué pasó en Compras?". NULL en LOGIN/LOGOUT (no son de un módulo).
+    codlog INT PRIMARY KEY AUTO_INCREMENT COMMENT 'Identificador único (PK)',
+    feclog TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT 'Fecha y hora de la acción',
+    acclog VARCHAR(20) NOT NULL COMMENT 'Acción: INSERT, UPDATE, DELETE, LOGIN o LOGOUT',
+    tablog VARCHAR(50) NULL COMMENT 'Tabla afectada',
+    reglog VARCHAR(50) NULL COMMENT 'Identificador del registro afectado',
+    iplog VARCHAR(45) NULL COMMENT 'Dirección IP de origen',
+    codusu INT NOT NULL COMMENT 'FK a usuario',
+    codmod INT NULL COMMENT 'FK a modulo',  
+    estlog BIT NOT NULL DEFAULT 1 COMMENT 'Estado del registro: 1 = activo, 0 = inactivo',
+    usucre VARCHAR(50) NOT NULL DEFAULT 'SYSTEM' COMMENT 'Usuario que creó el registro',
+    feccre DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Fecha y hora de creación (automática)',
+    usuact VARCHAR(50) NULL COMMENT 'Último usuario que modificó el registro (lo llena la aplicación)',
+    fecact DATETIME NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP COMMENT 'Fecha y hora de la última modificación (automática)',
     CHECK (acclog IN ('INSERT','UPDATE','DELETE','LOGIN','LOGOUT')),
     FOREIGN KEY (codusu) REFERENCES usuario(codusu),
-    FOREIGN KEY (codmod) REFERENCES modulo(codmod)                      -- [NUEVO]
-)ENGINE=InnoDB;
-
--- --------------------------------------------
--- FIDELIZACIÓN
--- --------------------------------------------
-
+    FOREIGN KEY (codmod) REFERENCES modulo(codmod)  
+)ENGINE=InnoDB COMMENT='Historial completo de acciones de los usuarios en el sistema';
+ 
 CREATE TABLE cuentapuntos(
-    codcpun INT PRIMARY KEY AUTO_INCREMENT,
-    salcpun INT NOT NULL DEFAULT 0,
-    feccpun TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    codcli INT NOT NULL UNIQUE,
-    codniv INT NOT NULL,                    -- [NUEVO] nivel actual del cliente (Bronce/Plata/Oro)
+    codcpun INT PRIMARY KEY AUTO_INCREMENT COMMENT 'Identificador único (PK)',
+    salcpun INT NOT NULL DEFAULT 0 COMMENT 'Saldo actual de puntos',
+    feccpun TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT 'Fecha de apertura de la cuenta',
+    codcli INT NOT NULL UNIQUE COMMENT 'FK a cliente',
+    codniv INT NOT NULL COMMENT 'FK a nivelfidelizacion',  
+    estcpun BIT NOT NULL DEFAULT 1 COMMENT 'Estado del registro: 1 = activo, 0 = inactivo',
+    usucre VARCHAR(50) NOT NULL DEFAULT 'SYSTEM' COMMENT 'Usuario que creó el registro',
+    feccre DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Fecha y hora de creación (automática)',
+    usuact VARCHAR(50) NULL COMMENT 'Último usuario que modificó el registro (lo llena la aplicación)',
+    fecact DATETIME NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP COMMENT 'Fecha y hora de la última modificación (automática)',
     CHECK (salcpun >= 0),
     FOREIGN KEY (codcli) REFERENCES cliente(codcli),
-    FOREIGN KEY (codniv) REFERENCES nivelfidelizacion(codniv)           -- [NUEVO]
-)ENGINE=InnoDB;
-
+    FOREIGN KEY (codniv) REFERENCES nivelfidelizacion(codniv)     
+)ENGINE=InnoDB COMMENT='Cuenta de puntos de fidelización de cada cliente';
+ 
 CREATE TABLE movimientopuntos(
-    codmpun INT PRIMARY KEY AUTO_INCREMENT,
-    fecmpun TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    canmpun INT NOT NULL,
-    tipmpun VARCHAR(15) NOT NULL,
-    codcpun INT NOT NULL,
-    codfac INT NULL,
+    codmpun INT PRIMARY KEY AUTO_INCREMENT COMMENT 'Identificador único (PK)',
+    fecmpun TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT 'Fecha del movimiento',
+    canmpun INT NOT NULL COMMENT 'Cantidad de puntos (siempre positiva)',
+    tipmpun VARCHAR(15) NOT NULL COMMENT 'Tipo: ACUMULACION, CANJE o VENCIMIENTO',
+    codcpun INT NOT NULL COMMENT 'FK a cuentapuntos',
+    codfac INT NULL COMMENT 'FK a facturacion',
+    estmpun BIT NOT NULL DEFAULT 1 COMMENT 'Estado del registro: 1 = activo, 0 = inactivo',
+    usucre VARCHAR(50) NOT NULL DEFAULT 'SYSTEM' COMMENT 'Usuario que creó el registro',
+    feccre DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Fecha y hora de creación (automática)',
+    usuact VARCHAR(50) NULL COMMENT 'Último usuario que modificó el registro (lo llena la aplicación)',
+    fecact DATETIME NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP COMMENT 'Fecha y hora de la última modificación (automática)',
     CHECK (canmpun > 0),
     CHECK (tipmpun IN ('ACUMULACION','CANJE','VENCIMIENTO')),
     FOREIGN KEY (codcpun) REFERENCES cuentapuntos(codcpun),
     FOREIGN KEY (codfac) REFERENCES facturacion(codfac)
-)ENGINE=InnoDB;
-
+)ENGINE=InnoDB COMMENT='Historial de acumulación, canje y vencimiento de puntos';
+ 
 CREATE TABLE canjerecompensa(
-    codcan INT PRIMARY KEY AUTO_INCREMENT,
-    feccan TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    puncan INT NOT NULL,
-    codcpun INT NOT NULL,
-    codrec INT NOT NULL,
+    codcan INT PRIMARY KEY AUTO_INCREMENT COMMENT 'Identificador único (PK)',
+    feccan TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT 'Fecha del canje',
+    puncan INT NOT NULL COMMENT 'Puntos descontados en el canje',
+    codcpun INT NOT NULL COMMENT 'FK a cuentapuntos',
+    codrec INT NOT NULL COMMENT 'FK a recompensa',
+    estcan BIT NOT NULL DEFAULT 1 COMMENT 'Estado del registro: 1 = activo, 0 = inactivo',
+    usucre VARCHAR(50) NOT NULL DEFAULT 'SYSTEM' COMMENT 'Usuario que creó el registro',
+    feccre DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Fecha y hora de creación (automática)',
+    usuact VARCHAR(50) NULL COMMENT 'Último usuario que modificó el registro (lo llena la aplicación)',
+    fecact DATETIME NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP COMMENT 'Fecha y hora de la última modificación (automática)',
     CHECK (puncan > 0),
     FOREIGN KEY (codcpun) REFERENCES cuentapuntos(codcpun),
     FOREIGN KEY (codrec) REFERENCES recompensa(codrec)
-)ENGINE=InnoDB;
-
+)ENGINE=InnoDB COMMENT='Canjes de recompensas realizados con puntos';
+ 
 -- --------------------------------------------
 -- ÍNDICES
--- (las columnas UNIQUE y PRIMARY KEY ya tienen índice propio;
---  aquí van las FK y fechas que se usan mucho en búsquedas y reportes)
 -- --------------------------------------------
-
 CREATE INDEX idx_empleado_sucursal ON empleado(codsuc);
 CREATE INDEX idx_almacen_sucursal ON almacen(codsuc);
-CREATE INDEX idx_cargo_tipo ON cargo(codtiemp);                          -- [NUEVO]
-CREATE INDEX idx_proveedor_eval ON proveedor(codeeva);                   -- [NUEVO]
-
+CREATE INDEX idx_cargo_tipo ON cargo(codtiemp);            
+CREATE INDEX idx_proveedor_eval ON proveedor(codeeva);     
+ 
 CREATE INDEX idx_producto_categoria ON producto(codcat);
 CREATE INDEX idx_producto_marca ON producto(codmar);
 CREATE INDEX idx_stock_almacen ON stockalmacen(codalm);
 CREATE INDEX idx_movinv_producto ON movimientoinventario(codpro);
 CREATE INDEX idx_movinv_almacen ON movimientoinventario(codalm);
 CREATE INDEX idx_movinv_fecha ON movimientoinventario(fecminv);
-
+ 
 CREATE INDEX idx_pedido_cliente ON pedido(codcli);
 CREATE INDEX idx_pedido_fecha ON pedido(fecped);
 CREATE INDEX idx_detped_pedido ON detallepedido(codped);
 CREATE INDEX idx_detped_producto ON detallepedido(codpro);
-
+ 
 CREATE INDEX idx_ocom_proveedor ON ordencompra(codprov);
 CREATE INDEX idx_detocom_orden ON detalleordencompra(codocom);
 CREATE INDEX idx_gin_orden ON guiaingreso(codocom);
 CREATE INDEX idx_fprov_proveedor ON facturaproveedor(codprov);
-
-CREATE INDEX idx_transporte_estado ON transporte(codetra);               -- [NUEVO] buscar vehículos disponibles
+ 
+CREATE INDEX idx_transporte_estado ON transporte(codetra);           
 CREATE INDEX idx_despacho_factura ON despacho(codfac);
 CREATE INDEX idx_detdes_despacho ON detalledespacho(coddes);
 CREATE INDEX idx_incidencia_despacho ON incidenciadespacho(coddes);
-
+ 
 CREATE INDEX idx_pagocli_factura ON pagocliente(codfac);
 CREATE INDEX idx_pagoprov_factura ON pagoproveedor(codfprov);
-
+ 
 CREATE INDEX idx_asistencia_empleado ON asistencia(codemp);
 CREATE INDEX idx_log_usuario ON auditorialog(codusu);
 CREATE INDEX idx_log_fecha ON auditorialog(feclog);
-CREATE INDEX idx_log_modulo ON auditorialog(codmod);                     -- [NUEVO]
-
+CREATE INDEX idx_log_modulo ON auditorialog(codmod);  
+ 
 CREATE INDEX idx_promocion_campana ON promocion(codcam);
-CREATE INDEX idx_cuentapuntos_nivel ON cuentapuntos(codniv);             -- [NUEVO]
+CREATE INDEX idx_cuentapuntos_nivel ON cuentapuntos(codniv);  
 CREATE INDEX idx_movpun_cuenta ON movimientopuntos(codcpun);
 CREATE INDEX idx_canje_cuenta ON canjerecompensa(codcpun);
+ 
