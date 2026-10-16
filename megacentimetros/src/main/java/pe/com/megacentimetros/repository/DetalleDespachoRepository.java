@@ -1,0 +1,14 @@
+package pe.com.megacentimetros.repository;
+
+import java.util.List;
+
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+
+import pe.com.megacentimetros.entity.DetalleDespachoEntity;
+
+public interface DetalleDespachoRepository extends JpaRepository<DetalleDespachoEntity, Long> {
+	@Query("select d from DetalleDespachoEntity d where d.estado=true")
+	List<DetalleDespachoEntity> findAllCustom();
+}
+
